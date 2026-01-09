@@ -1,0 +1,6 @@
+@MvcWebApiSwaggerApp_HostAddress = http://localhost:5178
+
+GET {{MvcWebApiSwaggerApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

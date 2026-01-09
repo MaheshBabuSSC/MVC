@@ -1,0 +1,812 @@
+﻿@model MvcWebApiSwaggerApp.Models.Register
+
+@{
+    ViewData["Title"] = Model.IsOtpSent == 0 ? "User Registration" : "Verify OTP";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        /* Smooth theme transitions */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Hide scrollbars */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animation for status badges */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Button animations */
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+
+            .btn-hover:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+        /* Form input focus effects */
+        .form-input:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* OTP input styling */
+        .otp-input {
+            letter-spacing: 0.5em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Gradient backgrounds */
+        .gradient-bg-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gradient-bg-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        /* Pulse animation for OTP button */
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body id="body" class="min-h-screen bg-slate-950 text-slate-100">
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTAINER -->
+    <!-- ============================================ -->
+    <div class="flex flex-col min-h-screen">
+
+        <!-- ============================================ -->
+        <!-- TOP HEADER -->
+        <!-- ============================================ -->
+        <header class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg gradient-bg-primary">
+                    <i class="fa-solid fa-user-plus text-white w-5 h-5"></i>
+                </div>
+                <h1 class="text-xl font-bold text-slate-100">
+                    @if (Model.IsOtpSent == 0)
+                    {
+                        <span>User Registration</span>
+                    }
+                    else
+                    {
+                        <span>Verify OTP</span>
+                    }
+                </h1>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Theme Toggle Button -->
+                <button id="themeToggle"
+                        class="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 shadow-md hover:shadow-lg transition-all"
+                        title="Toggle Light/Dark Theme">
+                    <i id="themeIcon" class="fa-solid fa-moon w-4 h-4"></i>
+                </button>
+
+                <!-- Back to Login Link (Optional) -->
+                @* <a asp-controller="Account" 
+                   asp-action="Login"
+                   class="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-medium btn-hover transition-all">
+                    <i class="fa-solid fa-arrow-left w-4 h-4"></i>
+                    <span>Back to Login</span>
+                </a> *@
+            </div>
+        </header>
+
+        <!-- ============================================ -->
+        <!-- MAIN CONTENT -->
+        <!-- ============================================ -->
+        <main class="flex-1 flex items-center justify-center p-6">
+            <div class="w-full max-w-md">
+                <!-- Success/Error Messages -->
+                @if (ViewBag.Message != null)
+                {
+                    <div id="successMessage" class="mb-6 px-6 py-3 rounded-lg gradient-bg-success text-white shadow-lg flex items-center gap-2 fade-in">
+                        <i class="fa-solid fa-check-circle"></i>
+                        @ViewBag.Message
+                    </div>
+                }
+
+                @if (ViewBag.Error != null)
+                {
+                    <div id="errorMessage" class="mb-6 px-6 py-3 rounded-lg bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-lg flex items-center gap-2 fade-in">
+                        <i class="fa-solid fa-exclamation-circle"></i>
+                        @ViewBag.Error
+                    </div>
+                }
+
+                <!-- Registration Form Card -->
+                <div class="bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-slate-800 shadow-xl p-8 fade-in">
+                    <form id="registrationForm" method="post" class="space-y-6">
+                        <input type="hidden" name="IsOtpSent" value="@Model.IsOtpSent" />
+                        <input type="hidden" name="UserId" value="@Model.UserId" />
+
+                        @if (Model.IsOtpSent == 0)
+                        {
+                            <!-- Registration Step -->
+                            <div class="text-center mb-2">
+                                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-600/20 flex items-center justify-center mx-auto mb-4">
+                                    <i class="fa-solid fa-user-plus text-indigo-400 text-2xl"></i>
+                                </div>
+                                <h2 class="text-2xl font-bold text-slate-100 mb-2">Create Account</h2>
+                                <p class="text-sm text-slate-400">Fill in your details to register</p>
+                            </div>
+
+                            <!-- Progress Steps -->
+                            <div class="flex items-center justify-center mb-8">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full gradient-bg-primary flex items-center justify-center text-white text-sm font-bold">
+                                        1
+                                    </div>
+                                    <div class="w-16 h-1 bg-indigo-500 mx-2"></div>
+                                    <div class="w-8 h-8 rounded-full border-2 border-slate-700 flex items-center justify-center text-slate-400 text-sm font-bold">
+                                        2
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email Input -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-envelope w-4 h-4"></i>
+                                    Email Address
+                                </label>
+                                <div class="relative">
+                                    <input type="email"
+                                           name="Email"
+                                           value="@Model.Email"
+                                           required
+                                           class="form-input w-full px-4 py-3 rounded-lg bg-slate-800 border-2 border-slate-700 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                           placeholder="you@example.com"
+                                           autocomplete="email" />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <i class="fa-solid fa-at text-slate-500"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Password Input -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-lock w-4 h-4"></i>
+                                    Password
+                                </label>
+                                <div class="relative">
+                                    <input type="password"
+                                           name="Password"
+                                           required
+                                           class="form-input w-full px-4 py-3 rounded-lg bg-slate-800 border-2 border-slate-700 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                           placeholder="••••••••"
+                                           autocomplete="new-password"
+                                           minlength="6" />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <i class="fa-solid fa-key text-slate-500"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-2">Must be at least 6 characters long</p>
+                            </div>
+
+                            <!-- Mobile Number Input -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-mobile-screen-button w-4 h-4"></i>
+                                    Mobile Number
+                                </label>
+                                <div class="relative">
+                                    <input type="tel"
+                                           name="MobileNumber"
+                                           value="@Model.MobileNumber"
+                                           required
+                                           class="form-input w-full px-4 py-3 rounded-lg bg-slate-800 border-2 border-slate-700 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                           placeholder="+1 (555) 123-4567"
+                                           pattern="[+]?[\d\s\-\(\)]+"
+                                           autocomplete="tel" />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <i class="fa-solid fa-phone text-slate-500"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Role Selection -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-user-tag w-4 h-4"></i>
+                                    Select Role
+                                </label>
+                                <div class="relative">
+                                    <select name="Role"
+                                            class="form-input w-full px-4 py-3 rounded-lg bg-slate-800 border-2 border-slate-700 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 appearance-none transition-all">
+                                        <option value="" class="bg-slate-800">Select a role</option>
+                                        <option value="Admin" class="bg-slate-800" selected="@(Model.Role == "Admin")">Admin</option>
+                                        <option value="User" class="bg-slate-800" selected="@(Model.Role == "User")">User</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <i class="fa-solid fa-chevron-down text-slate-500"></i>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 mt-3 text-sm text-slate-400">
+                                    <i class="fa-solid fa-info-circle"></i>
+                                    <span>Admin has full access, User has limited access</span>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="pt-4">
+                                <button type="submit"
+                                        id="registerBtn"
+                                        class="w-full py-3.5 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl btn-hover transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-user-plus w-5 h-5"></i>
+                                    <span>Register & Send OTP</span>
+                                </button>
+                            </div>
+
+                            <!-- Terms & Conditions -->
+                            <div class="text-center pt-4 border-t border-slate-800">
+                                <p class="text-xs text-slate-400">
+                                    By registering, you agree to our
+                                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition-colors">Terms of Service</a>
+                                    and
+                                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition-colors">Privacy Policy</a>
+                                </p>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- OTP Verification Step -->
+                            <div class="text-center mb-2">
+                                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500/20 to-teal-600/20 flex items-center justify-center mx-auto mb-4">
+                                    <i class="fa-solid fa-shield-check text-emerald-400 text-2xl"></i>
+                                </div>
+                                <h2 class="text-2xl font-bold text-slate-100 mb-2">Verify OTP</h2>
+                                <p class="text-sm text-slate-400 mb-4">Enter the OTP sent to your email</p>
+
+                                <!-- User Info -->
+                                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 mb-6">
+                                    <i class="fa-solid fa-user text-slate-400"></i>
+                                    <span class="text-sm text-slate-300">User ID: @Model.UserId</span>
+                                </div>
+                            </div>
+
+                            <!-- Progress Steps -->
+                            <div class="flex items-center justify-center mb-8">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full border-2 border-emerald-500 flex items-center justify-center text-emerald-400 text-sm font-bold">
+                                        <i class="fa-solid fa-check w-4 h-4"></i>
+                                    </div>
+                                    <div class="w-16 h-1 bg-emerald-500 mx-2"></div>
+                                    <div class="w-8 h-8 rounded-full gradient-bg-primary flex items-center justify-center text-white text-sm font-bold">
+                                        2
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- OTP Input -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-key w-4 h-4"></i>
+                                    One-Time Password
+                                </label>
+                                <div class="relative">
+                                    <input type="text"
+                                           name="OtpCode"
+                                           required
+                                           class="form-input otp-input w-full px-4 py-3 rounded-lg bg-slate-800 border-2 border-slate-700 text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all text-center"
+                                           placeholder="Enter 6-digit OTP"
+                                           pattern="\d{6}"
+                                           maxlength="6"
+                                           inputmode="numeric"
+                                           autocomplete="one-time-code"
+                                           autofocus />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <i class="fa-solid fa-shield-halved text-slate-500"></i>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-2">
+                                    <p class="text-xs text-slate-400">
+                                        <i class="fa-solid fa-clock mr-1"></i>
+                                        OTP expires in 10 minutes
+                                    </p>
+                                    <button type="button"
+                                            id="resendOtpBtn"
+                                            class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+                                        <i class="fa-solid fa-rotate-right mr-1"></i>
+                                        Resend OTP
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="pt-4">
+                                <button type="submit"
+                                        id="verifyBtn"
+                                        class="w-full py-3.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold shadow-lg hover:shadow-xl btn-hover transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-shield-check w-5 h-5"></i>
+                                    <span>Verify OTP & Complete Registration</span>
+                                </button>
+                            </div>
+
+                            <!-- Help Text -->
+                            <div class="text-center pt-4 border-t border-slate-800">
+                                <p class="text-sm text-slate-400">
+                                    <i class="fa-solid fa-circle-info mr-1"></i>
+                                    Check your email for the OTP. Didn't receive it?
+                                    <button type="button" id="helpBtn" class="text-indigo-400 hover:text-indigo-300 transition-colors ml-1">
+                                        Get help
+                                    </button>
+                                </p>
+                            </div>
+                        }
+                    </form>
+                </div>
+
+                <!-- Already have account? -->
+                <div class="text-center mt-6">
+                    <p class="text-sm text-slate-400">
+                        Already have an account?
+                        @* <a asp-controller="Account" asp-action="Login" class="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                            Sign in here
+                        </a> *@
+                        <a href="#" class="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+                            Sign in here
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- HELP MODAL -->
+    <!-- ============================================ -->
+    <div id="helpModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-slate-800 border-2 border-slate-700 rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h2 class="text-xl font-bold text-slate-100 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-circle-question"></i>
+                OTP Help
+            </h2>
+
+            <div class="space-y-4 text-sm text-slate-300 mb-6">
+                <div class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center mt-0.5">
+                        <i class="fa-solid fa-envelope text-indigo-400 text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">Check your email</p>
+                        <p class="text-slate-400 mt-1">Look for an email from us with subject "Your OTP Code"</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center mt-0.5">
+                        <i class="fa-solid fa-spam text-amber-400 text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">Check spam folder</p>
+                        <p class="text-slate-400 mt-1">Sometimes OTP emails end up in spam/junk folder</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center mt-0.5">
+                        <i class="fa-solid fa-rotate text-emerald-400 text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">Resend OTP</p>
+                        <p class="text-slate-400 mt-1">Click "Resend OTP" button to receive a new code</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 justify-end">
+                <button id="closeHelpBtn"
+                        type="button"
+                        class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition-colors">
+                    Close
+                </button>
+                <button id="resendFromModalBtn"
+                        type="button"
+                        class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white transition-colors">
+                    <i class="fa-solid fa-paper-plane mr-2"></i>
+                    Resend OTP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================ -->
+    <script>
+        // ============================================
+        // DOM ELEMENT REFERENCES
+        // ============================================
+        const body = document.getElementById("body");
+        const themeToggle = document.getElementById("themeToggle");
+        const themeIcon = document.getElementById("themeIcon");
+        const registrationForm = document.getElementById("registrationForm");
+        const otpInput = document.querySelector('input[name="OtpCode"]');
+        const resendOtpBtn = document.getElementById("resendOtpBtn");
+        const helpBtn = document.getElementById("helpBtn");
+        const helpModal = document.getElementById("helpModal");
+        const closeHelpBtn = document.getElementById("closeHelpBtn");
+        const resendFromModalBtn = document.getElementById("resendFromModalBtn");
+        const registerBtn = document.getElementById("registerBtn");
+        const verifyBtn = document.getElementById("verifyBtn");
+
+        // ============================================
+        // THEME MANAGEMENT
+        // ============================================
+        let isLightTheme = false;
+
+        function toggleTheme() {
+            isLightTheme = !isLightTheme;
+
+            if (isLightTheme) {
+                // Apply light theme
+                body.className = "min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900";
+                themeIcon.className = "fa-solid fa-sun w-4 h-4";
+
+                // Update header
+                const header = document.querySelector('header');
+                if (header) {
+                    header.className = "flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white/95 backdrop-blur-md shadow-lg";
+                }
+
+                // Update form card
+                const formCard = document.querySelector('.bg-slate-900\\/80');
+                if (formCard) {
+                    formCard.className = "bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-300 shadow-xl p-8 fade-in";
+                }
+
+            } else {
+                // Apply dark theme
+                body.className = "min-h-screen bg-slate-950 text-slate-100";
+                themeIcon.className = "fa-solid fa-moon w-4 h-4";
+
+                // Update header
+                const header = document.querySelector('header');
+                if (header) {
+                    header.className = "flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md shadow-lg";
+                }
+
+                // Update form card
+                const formCard = document.querySelector('.bg-white\\/80');
+                if (formCard) {
+                    formCard.className = "bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-slate-800 shadow-xl p-8 fade-in";
+                }
+            }
+        }
+
+        // ============================================
+        // FORM VALIDATION
+        // ============================================
+        function validateRegistrationForm() {
+            const email = document.querySelector('input[name="Email"]');
+            const password = document.querySelector('input[name="Password"]');
+            const mobile = document.querySelector('input[name="MobileNumber"]');
+            const role = document.querySelector('select[name="Role"]');
+
+            if (email && !email.value.trim()) {
+                alert('Email is required!');
+                email.focus();
+                return false;
+            }
+
+            if (password && password.value.length < 6) {
+                alert('Password must be at least 6 characters!');
+                password.focus();
+                return false;
+            }
+
+            if (mobile && !mobile.value.trim()) {
+                alert('Mobile number is required!');
+                mobile.focus();
+                return false;
+            }
+
+            if (role && !role.value) {
+                alert('Please select a role!');
+                role.focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateOtpForm() {
+            const otp = document.querySelector('input[name="OtpCode"]');
+
+            if (otp && (!otp.value.trim() || !/^\d{6}$/.test(otp.value))) {
+                alert('Please enter a valid 6-digit OTP!');
+                otp.focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        // ============================================
+        // OTP INPUT HANDLING
+        // ============================================
+        if (otpInput) {
+            // Auto-format OTP
+            otpInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+
+                // Auto-submit when 6 digits entered
+                if (this.value.length === 6) {
+                    this.blur();
+                    setTimeout(() => {
+                        if (validateOtpForm()) {
+                            verifyBtn.click();
+                        }
+                    }, 300);
+                }
+            });
+
+            // Allow paste
+            otpInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+                this.value = pastedData.substring(0, 6);
+
+                if (pastedData.length >= 6) {
+                    setTimeout(() => {
+                        if (validateOtpForm()) {
+                            verifyBtn.click();
+                        }
+                    }, 300);
+                }
+            });
+        }
+
+        // ============================================
+        // RESEND OTP FUNCTIONALITY
+        // ============================================
+        let canResendOtp = true;
+        let resendTimer = 60;
+
+        function updateResendButton() {
+            if (!resendOtpBtn) return;
+
+            if (!canResendOtp) {
+                resendOtpBtn.innerHTML = `<i class="fa-solid fa-clock mr-1"></i>Resend in ${resendTimer}s`;
+                resendOtpBtn.disabled = true;
+                resendOtpBtn.classList.remove('text-indigo-400', 'hover:text-indigo-300');
+                resendOtpBtn.classList.add('text-slate-500', 'cursor-not-allowed');
+
+                resendTimer--;
+
+                if (resendTimer <= 0) {
+                    canResendOtp = true;
+                    resendTimer = 60;
+                    resendOtpBtn.innerHTML = `<i class="fa-solid fa-rotate-right mr-1"></i>Resend OTP`;
+                    resendOtpBtn.disabled = false;
+                    resendOtpBtn.classList.remove('text-slate-500', 'cursor-not-allowed');
+                    resendOtpBtn.classList.add('text-indigo-400', 'hover:text-indigo-300');
+                } else {
+                    setTimeout(updateResendButton, 1000);
+                }
+            }
+        }
+
+        function resendOtp() {
+            if (!canResendOtp) return;
+
+            canResendOtp = false;
+            resendTimer = 60;
+
+            // Show loading state
+            if (resendOtpBtn) {
+                resendOtpBtn.innerHTML = `<div class="spinner mr-2"></div>Sending...`;
+                resendOtpBtn.disabled = true;
+            }
+
+            // Simulate API call
+            setTimeout(() => {
+                // Reset button state
+                if (resendOtpBtn) {
+                    resendOtpBtn.innerHTML = `<i class="fa-solid fa-clock mr-1"></i>Resend in ${resendTimer}s`;
+                }
+
+                // Start countdown
+                updateResendButton();
+
+                // Show success message
+                showToast('New OTP sent to your email!', 'success');
+
+                // Close help modal if open
+                helpModal.classList.add('hidden');
+            }, 1500);
+        }
+
+        // ============================================
+        // TOAST NOTIFICATIONS
+        // ============================================
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 fade-in ${
+                type === 'success' ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white' :
+                type === 'error' ? 'bg-gradient-to-r from-rose-500 to-pink-600 text-white' :
+                'bg-gradient-to-r from-indigo-500 to-purple-600 text-white'
+            }`;
+
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.5s ease';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Form submission validation
+        if (registrationForm) {
+            registrationForm.addEventListener('submit', function(e) {
+                if (@(Model.IsOtpSent) == 0) {
+                    if (!validateRegistrationForm()) {
+                        e.preventDefault();
+                    } else {
+                        // Show loading state
+                        if (registerBtn) {
+                            registerBtn.innerHTML = `<div class="spinner mr-2"></div>Processing...`;
+                            registerBtn.disabled = true;
+                        }
+                    }
+                } else {
+                    if (!validateOtpForm()) {
+                        e.preventDefault();
+                    } else {
+                        // Show loading state
+                        if (verifyBtn) {
+                            verifyBtn.innerHTML = `<div class="spinner mr-2"></div>Verifying...`;
+                            verifyBtn.disabled = true;
+                        }
+                    }
+                }
+            });
+        }
+
+        // Resend OTP button
+        if (resendOtpBtn) {
+            resendOtpBtn.addEventListener('click', resendOtp);
+        }
+
+        // Help button
+        if (helpBtn) {
+            helpBtn.addEventListener('click', function() {
+                helpModal.classList.remove('hidden');
+            });
+        }
+
+        // Close help modal
+        if (closeHelpBtn) {
+            closeHelpBtn.addEventListener('click', function() {
+                helpModal.classList.add('hidden');
+            });
+        }
+
+        // Resend from modal
+        if (resendFromModalBtn) {
+            resendFromModalBtn.addEventListener('click', function() {
+                resendOtp();
+            });
+        }
+
+        // Close modal on outside click
+        helpModal.addEventListener('click', function(e) {
+            if (e.target === helpModal) {
+                helpModal.classList.add('hidden');
+            }
+        });
+
+        // Auto-hide messages after 5 seconds
+        setTimeout(() => {
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.style.transition = 'opacity 0.5s ease';
+                successMessage.style.opacity = '0';
+                setTimeout(() => successMessage.remove(), 500);
+            }
+
+            const errorMessage = document.getElementById('errorMessage');
+            if (errorMessage) {
+                errorMessage.style.transition = 'opacity 0.5s ease';
+                errorMessage.style.opacity = '0';
+                setTimeout(() => errorMessage.remove(), 500);
+            }
+        }, 5000);
+
+        // Initialize resend OTP timer if on OTP page
+        if (@(Model.IsOtpSent) != 0) {
+            updateResendButton();
+        }
+
+        // Auto-focus OTP input on OTP page
+        if (otpInput) {
+            setTimeout(() => otpInput.focus(), 300);
+        }
+    </script>
+</body>
+</html>
