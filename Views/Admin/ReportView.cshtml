@@ -1,0 +1,860 @@
+﻿@model List<Dictionary<string, object>>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Reports";
+}
+
+@{
+    ViewData["Title"] = "Report Details";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Details | Form Builder</title>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        /* Smooth theme transitions */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Hide scrollbars */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animation for table rows */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Button animations */
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+
+            .btn-hover:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+        /* Gradient backgrounds */
+        .gradient-bg-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gradient-bg-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .gradient-bg-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        /* Table row hover effects */
+        .table-row-hover:hover {
+            background-color: rgba(30, 41, 59, 0.5) !important;
+        }
+
+        /* Sticky table header */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        /* Scrollbar styling for data table */
+        .data-table::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        .data-table::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 4px;
+        }
+
+        .data-table::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 4px;
+        }
+
+            .data-table::-webkit-scrollbar-thumb:hover {
+                background: rgba(99, 102, 241, 0.7);
+            }
+    </style>
+</head>
+
+<body id="body" class="min-h-screen bg-slate-950 text-slate-100">
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTAINER -->
+    <!-- ============================================ -->
+    <div class="flex flex-col h-screen">
+
+        <!-- ============================================ -->
+        <!-- TOP HEADER -->
+        <!-- ============================================ -->
+        <header class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg gradient-bg-info">
+                    <i class="fa-solid fa-chart-bar text-white w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-100">Report Details</h1>
+                    <p class="text-xs text-slate-400">Viewing submission data</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Theme Toggle Button -->
+                <button id="themeToggle"
+                        class="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 shadow-md hover:shadow-lg transition-all"
+                        title="Toggle Light/Dark Theme">
+                    <i id="themeIcon" class="fa-solid fa-moon w-4 h-4"></i>
+                </button>
+
+                <!-- Back to Reports Button -->
+                <a asp-area="Admin"
+                   asp-controller="Reports"
+                   asp-action="Index"
+                   class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-medium shadow-md hover:shadow-lg btn-hover transition-all">
+                    <i class="fa-solid fa-arrow-left w-4 h-4"></i>
+                    <span>Back to Reports</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- ============================================ -->
+        <!-- MAIN CONTENT -->
+        <!-- ============================================ -->
+        <main class="flex-1 overflow-auto hide-scrollbar p-6">
+            <!-- Report Header -->
+            <div class="mb-8">
+                <div class="flex items-start justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-100 mb-2">
+                            <i class="fa-solid fa-database mr-2"></i>
+                            @ViewBag.TableName
+                        </h2>
+                        <div class="flex items-center gap-4 text-sm text-slate-400">
+                            <span>
+                                <i class="fa-solid fa-table mr-1"></i>
+                                Table: @ViewBag.TableName
+                            </span>
+                            <span>•</span>
+                            <span>
+                                <i class="fa-solid fa-list-check mr-1"></i>
+                                @Model.Count submission@(Model.Count != 1 ? "s" : "")
+                            </span>
+                            <span>•</span>
+                            <span>
+                                <i class="fa-solid fa-columns mr-1"></i>
+                                @(Model.Any() ? Model.First().Keys.Count : 0) columns
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-3">
+                        <!-- Export Button -->
+                        <button id="exportBtn"
+                                class="flex items-center gap-2 px-4 py-2.5 rounded-lg gradient-bg-primary hover:opacity-90 text-white font-medium shadow-md hover:shadow-lg btn-hover transition-all">
+                            <i class="fa-solid fa-download w-4 h-4"></i>
+                            <span>Export Data</span>
+                        </button>
+
+                        <!-- Refresh Button -->
+                        <button id="refreshBtn"
+                                class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-medium shadow-md hover:shadow-lg btn-hover transition-all">
+                            <i class="fa-solid fa-rotate w-4 h-4"></i>
+                            <span>Refresh</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="p-4 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700">
+                        <p class="text-sm font-medium text-slate-400 mb-1">Total Submissions</p>
+                        <p class="text-2xl font-bold text-slate-100">@Model.Count</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700">
+                        <p class="text-sm font-medium text-slate-400 mb-1">Total Columns</p>
+                        <p class="text-2xl font-bold text-indigo-400">@(Model.Any() ? Model.First().Keys.Count : 0)</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700">
+                        <p class="text-sm font-medium text-slate-400 mb-1">Last Updated</p>
+                        <p class="text-lg font-semibold text-slate-100">Just now</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700">
+                        <p class="text-sm font-medium text-slate-400 mb-1">Data Status</p>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium gradient-bg-success text-white">
+                            <i class="fa-solid fa-check-circle mr-1 w-3 h-3"></i>
+                            Live
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <!-- Empty State -->
+                <div class="flex flex-col items-center justify-center py-16">
+                    <div class="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-600/10 flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-inbox text-slate-400 text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-medium text-slate-300 mb-3">No Data Found</h3>
+                    <p class="text-slate-400 text-center max-w-md mb-8">
+                        No submissions have been recorded for this form yet. Share your form link to start collecting responses.
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <button class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-all">
+                            <i class="fa-solid fa-share w-4 h-4"></i>
+                            <span>Share Form</span>
+                        </button>
+                        <a asp-area="Admin"
+                           asp-controller="FormBuilder"
+                           asp-action="Index"
+                           class="flex items-center gap-2 px-4 py-2.5 rounded-lg gradient-bg-primary hover:opacity-90 text-white font-medium transition-all">
+                            <i class="fa-solid fa-edit w-4 h-4"></i>
+                            <span>Edit Form</span>
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Data Table Container -->
+                <div class="bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+                    <!-- Table Header -->
+                    <div class="px-6 py-4 border-b border-slate-800 bg-gradient-to-r from-indigo-900/30 to-purple-900/30">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-slate-100">
+                                <i class="fa-solid fa-table mr-2"></i>
+                                Submission Data
+                            </h3>
+                            <div class="text-sm text-slate-400">
+                                Showing @Model.Count row@(Model.Count != 1 ? "s" : "")
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Table -->
+                    <div class="data-table overflow-x-auto">
+                        <table class="w-full min-w-max">
+                            <thead>
+                                <tr class="border-b border-slate-800 sticky-header bg-slate-900">
+                                    <!-- Serial Number Column -->
+                                    <th class="py-3 px-4 text-left">
+                                        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                            <i class="fa-solid fa-hashtag"></i>
+                                            #
+                                        </div>
+                                    </th>
+
+                                    <!-- Data Columns -->
+                                    @foreach (var col in Model.First().Keys)
+                                    {
+                                        <th class="py-3 px-4 text-left min-w-[150px]">
+                                            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-indigo-400">
+                                                <i class="fa-solid fa-columns"></i>
+                                                @col
+                                            </div>
+                                        </th>
+                                    }
+
+                                    <!-- Actions Column -->
+                                    <th class="py-3 px-4 text-left">
+                                        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                            Actions
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Count; i++)
+                                {
+                                    var row = Model[i];
+                                    <tr class="border-b border-slate-800/50 table-row-hover transition-all duration-200 fade-in">
+                                        <!-- Serial Number -->
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center justify-center">
+                                                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-800 text-xs font-medium text-slate-300">
+                                                    @(i + 1)
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <!-- Data Cells -->
+                                        @foreach (var value in row.Values)
+                                        {
+                                            <td class="py-3 px-4">
+                                                <div class="text-sm text-slate-300 max-w-xs truncate" title="@value?.ToString()">
+                                                    @if (value == null || string.IsNullOrEmpty(value.ToString()))
+                                                    {
+                                                        <span class="text-slate-500 italic">Empty</span>
+                                                    }
+                                                    else if (value is DateTime)
+                                                    {
+                                                        <span class="text-cyan-400">@(((DateTime)value).ToString("MMM dd, yyyy HH:mm"))</span>
+                                                    }
+                                                    else if (value is bool)
+                                                    {
+                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium @(((bool)value) ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400")">
+                                                            <i class="fa-solid @(((bool)value) ? "fa-check" : "fa-xmark") mr-1 w-3 h-3"></i>
+                                                            @value
+                                                        </span>
+                                                    }
+                                                    else if (value.ToString().Length > 50)
+                                                    {
+                                                        <span class="cursor-help" title="@value">
+                                                            @value.ToString().Substring(0, 47)...
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @value
+                                                    }
+                                                </div>
+                                            </td>
+                                        }
+
+                                        <!-- Actions Cell -->
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center gap-2">
+                                                <!-- View Details Button -->
+                                                <button class="view-details-btn flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs transition-all"
+                                                        data-row-index="@i">
+                                                    <i class="fa-solid fa-eye w-3 h-3"></i>
+                                                    <span>View</span>
+                                                </button>
+
+                                                <!-- Delete Button -->
+                                                <button class="delete-row-btn flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 hover:text-rose-300 text-xs transition-all"
+                                                        data-row-index="@i">
+                                                    <i class="fa-solid fa-trash w-3 h-3"></i>
+                                                    <span>Delete</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Table Footer -->
+                    <div class="px-6 py-4 border-t border-slate-800 bg-slate-900/50">
+                        <div class="flex items-center justify-between text-sm text-slate-400">
+                            <div>
+                                <i class="fa-solid fa-circle-info mr-2"></i>
+                                Click on a row to view details. Hover over truncated text to see full content.
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span>Total: @Model.Count row@(Model.Count != 1 ? "s" : "")</span>
+                                <span>•</span>
+                                <span>Columns: @(Model.Any() ? Model.First().Keys.Count : 0)</span>
+                                <span>•</span>
+                                <span>Updated: Just now</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Options -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold text-slate-100 mb-4">
+                        <i class="fa-solid fa-download mr-2"></i>
+                        Export Options
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button class="export-option flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-800/30 hover:border-indigo-500/50 transition-all">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-600/20 flex items-center justify-center">
+                                <i class="fa-solid fa-file-excel text-emerald-400"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium text-slate-100">Export as Excel</p>
+                                <p class="text-xs text-slate-400">Download as .xlsx file</p>
+                            </div>
+                        </button>
+
+                        <button class="export-option flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-blue-900/20 to-cyan-900/20 border border-blue-800/30 hover:border-blue-500/50 transition-all">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-600/20 flex items-center justify-center">
+                                <i class="fa-solid fa-file-csv text-blue-400"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium text-slate-100">Export as CSV</p>
+                                <p class="text-xs text-slate-400">Download as .csv file</p>
+                            </div>
+                        </button>
+
+                        <button class="export-option flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-rose-900/20 to-pink-900/20 border border-rose-800/30 hover:border-rose-500/50 transition-all">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-rose-500/20 to-pink-600/20 flex items-center justify-center">
+                                <i class="fa-solid fa-file-pdf text-rose-400"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium text-slate-100">Export as PDF</p>
+                                <p class="text-xs text-slate-400">Download as .pdf file</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            }
+
+            <!-- Success Message Display -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div id="successMessage" class="fixed top-4 right-4 px-6 py-3 rounded-lg gradient-bg-success text-white shadow-lg flex items-center gap-2 z-50 fade-in">
+                    <i class="fa-solid fa-check-circle"></i>
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div id="errorMessage" class="fixed top-4 right-4 px-6 py-3 rounded-lg bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-lg flex items-center gap-2 z-50 fade-in">
+                    <i class="fa-solid fa-exclamation-circle"></i>
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+        </main>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ROW DETAILS MODAL -->
+    <!-- ============================================ -->
+    <div id="rowDetailsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-slate-800 border-2 border-slate-700 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-700 bg-gradient-to-r from-indigo-900/30 to-purple-900/30">
+                <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-eye"></i>
+                    Row Details
+                </h2>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[60vh]">
+                <div id="rowDetailsContent" class="space-y-4">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-700 bg-slate-900/50">
+                <div class="flex justify-end">
+                    <button id="closeRowDetails"
+                            class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition-colors">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================ -->
+    <script>
+        // ============================================
+        // DOM ELEMENT REFERENCES
+        // ============================================
+        const body = document.getElementById("body");
+        const themeToggle = document.getElementById("themeToggle");
+        const themeIcon = document.getElementById("themeIcon");
+        const exportBtn = document.getElementById("exportBtn");
+        const refreshBtn = document.getElementById("refreshBtn");
+        const viewDetailsBtns = document.querySelectorAll('.view-details-btn');
+        const deleteRowBtns = document.querySelectorAll('.delete-row-btn');
+        const exportOptions = document.querySelectorAll('.export-option');
+        const rowDetailsModal = document.getElementById("rowDetailsModal");
+        const rowDetailsContent = document.getElementById("rowDetailsContent");
+        const closeRowDetails = document.getElementById("closeRowDetails");
+
+        // ============================================
+        // DATA STORAGE
+        // ============================================
+        const tableData = @Html.Raw(Json.Serialize(Model));
+        const tableName = "@ViewBag.TableName";
+
+        // ============================================
+        // THEME MANAGEMENT
+        // ============================================
+        let isLightTheme = false;
+
+        function toggleTheme() {
+            isLightTheme = !isLightTheme;
+
+            if (isLightTheme) {
+                // Apply light theme
+                body.className = "min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900";
+                themeIcon.className = "fa-solid fa-sun w-4 h-4";
+
+                // Update header
+                const header = document.querySelector('header');
+                if (header) {
+                    header.className = "flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white/95 backdrop-blur-md shadow-lg";
+                }
+
+                // Update table styling
+                document.querySelectorAll('.bg-slate-900\\/80').forEach(el => {
+                    el.className = el.className.replace('bg-slate-900/80', 'bg-white/80');
+                });
+
+                document.querySelectorAll('.border-slate-800').forEach(el => {
+                    el.className = el.className.replace('border-slate-800', 'border-gray-300');
+                });
+
+                document.querySelectorAll('.border-slate-700').forEach(el => {
+                    el.className = el.className.replace('border-slate-700', 'border-gray-400');
+                });
+
+                // Update text colors
+                document.querySelectorAll('.text-slate-100').forEach(el => {
+                    el.className = el.className.replace('text-slate-100', 'text-gray-900');
+                });
+
+                document.querySelectorAll('.text-slate-400').forEach(el => {
+                    el.className = el.className.replace('text-slate-400', 'text-gray-600');
+                });
+
+                document.querySelectorAll('.text-slate-300').forEach(el => {
+                    el.className = el.className.replace('text-slate-300', 'text-gray-700');
+                });
+
+                // Update table row hover
+                document.querySelectorAll('.table-row-hover').forEach(row => {
+                    row.addEventListener('mouseenter', function () {
+                        this.style.backgroundColor = 'rgba(243, 244, 246, 0.5)';
+                    });
+                    row.addEventListener('mouseleave', function () {
+                        this.style.backgroundColor = '';
+                    });
+                });
+
+            } else {
+                // Apply dark theme
+                body.className = "min-h-screen bg-slate-950 text-slate-100";
+                themeIcon.className = "fa-solid fa-moon w-4 h-4";
+
+                // Update header
+                const header = document.querySelector('header');
+                if (header) {
+                    header.className = "flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md shadow-lg";
+                }
+
+                // Update table styling
+                document.querySelectorAll('.bg-white\\/80').forEach(el => {
+                    el.className = el.className.replace('bg-white/80', 'bg-slate-900/80');
+                });
+
+                document.querySelectorAll('.border-gray-300').forEach(el => {
+                    el.className = el.className.replace('border-gray-300', 'border-slate-800');
+                });
+
+                document.querySelectorAll('.border-gray-400').forEach(el => {
+                    el.className = el.className.replace('border-gray-400', 'border-slate-700');
+                });
+
+                // Update text colors
+                document.querySelectorAll('.text-gray-900').forEach(el => {
+                    el.className = el.className.replace('text-gray-900', 'text-slate-100');
+                });
+
+                document.querySelectorAll('.text-gray-600').forEach(el => {
+                    el.className = el.className.replace('text-gray-600', 'text-slate-400');
+                });
+
+                document.querySelectorAll('.text-gray-700').forEach(el => {
+                    el.className = el.className.replace('text-gray-700', 'text-slate-300');
+                });
+
+                // Update table row hover
+                document.querySelectorAll('.table-row-hover').forEach(row => {
+                    row.addEventListener('mouseenter', function () {
+                        this.style.backgroundColor = 'rgba(30, 41, 59, 0.5)';
+                    });
+                    row.addEventListener('mouseleave', function () {
+                        this.style.backgroundColor = '';
+                    });
+                });
+            }
+        }
+
+        // ============================================
+        // ROW DETAILS FUNCTIONS
+        // ============================================
+        function showRowDetails(rowIndex) {
+            if (!tableData[rowIndex]) return;
+
+            const row = tableData[rowIndex];
+            const headers = Object.keys(row);
+            const values = Object.values(row);
+
+            let content = `
+                <div class="mb-4 p-4 rounded-xl bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-800/30">
+                    <h3 class="text-lg font-semibold text-slate-100 mb-2">Row Details</h3>
+                    <p class="text-sm text-slate-400">Showing details for row ${parseInt(rowIndex) + 1}</p>
+                </div>
+            `;
+
+            headers.forEach((header, index) => {
+                const value = values[index];
+                const displayValue = value === null || value === '' ?
+                    '<span class="text-slate-500 italic">Empty</span>' :
+                    value.toString();
+
+                content += `
+                    <div class="p-4 rounded-lg bg-slate-800/30">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h4 class="text-sm font-medium text-indigo-400 mb-1 flex items-center gap-2">
+                                    <i class="fa-solid fa-columns w-4 h-4"></i>
+                                    ${header}
+                                </h4>
+                                <p class="text-sm text-slate-300 break-all">${displayValue}</p>
+                            </div>
+                            <div class="ml-4">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-400">
+                                    ${typeof value}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            rowDetailsContent.innerHTML = content;
+            rowDetailsModal.classList.remove('hidden');
+        }
+
+        // ============================================
+        // EXPORT FUNCTIONS
+        // ============================================
+        function exportToCSV() {
+            if (!tableData.length) {
+                alert('No data to export.');
+                return;
+            }
+
+            const headers = Object.keys(tableData[0]);
+            const csvRows = [];
+
+            // Add headers
+            csvRows.push(headers.join(','));
+
+            // Add data rows
+            tableData.forEach(row => {
+                const values = headers.map(header => {
+                    const value = row[header];
+                    // Escape quotes and wrap in quotes if contains commas or quotes
+                    const escaped = ('' + value).replace(/"/g, '""');
+                    return /[,"\n]/.test(escaped) ? `"${escaped}"` : escaped;
+                });
+                csvRows.push(values.join(','));
+            });
+
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${tableName}_export_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportToJSON() {
+            if (!tableData.length) {
+                alert('No data to export.');
+                return;
+            }
+
+            const jsonContent = JSON.stringify(tableData, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${tableName}_export_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Refresh button
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() {
+                this.innerHTML = '<div class="spinner mr-2"></div>Refreshing...';
+                this.disabled = true;
+
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            });
+        }
+
+        // Export button
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                // Show export options menu
+                alert('Choose export format from the options below.');
+            });
+        }
+
+        // Export options
+        exportOptions.forEach((option, index) => {
+            option.addEventListener('click', function() {
+                const format = this.querySelector('p').textContent.toLowerCase();
+
+                if (format.includes('csv')) {
+                    exportToCSV();
+                } else if (format.includes('excel')) {
+                    alert('Excel export functionality would be implemented here.');
+                    // You would need a library like SheetJS for proper Excel export
+                } else if (format.includes('pdf')) {
+                    alert('PDF export functionality would be implemented here.');
+                    // You would need a library like jsPDF for proper PDF export
+                }
+            });
+        });
+
+        // View details buttons
+        viewDetailsBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const rowIndex = this.getAttribute('data-row-index');
+                showRowDetails(rowIndex);
+            });
+        });
+
+        // Delete row buttons
+        deleteRowBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const rowIndex = this.getAttribute('data-row-index');
+                const rowNumber = parseInt(rowIndex) + 1;
+
+                if (confirm(`Are you sure you want to delete row ${rowNumber}? This action cannot be undone.`)) {
+                    // Show loading state
+                    this.innerHTML = '<div class="spinner mr-2"></div>Deleting...';
+                    this.disabled = true;
+
+                    // In a real app, you would make an API call here
+                    setTimeout(() => {
+                        alert(`Row ${rowNumber} would be deleted (API call needed).`);
+                        // location.reload(); // Refresh to show updated data
+                    }, 1000);
+                }
+            });
+        });
+
+        // Close row details modal
+        if (closeRowDetails) {
+            closeRowDetails.addEventListener('click', function() {
+                rowDetailsModal.classList.add('hidden');
+            });
+        }
+
+        // Close modal on outside click
+        rowDetailsModal.addEventListener('click', function(e) {
+            if (e.target === rowDetailsModal) {
+                rowDetailsModal.classList.add('hidden');
+            }
+        });
+
+        // Auto-hide messages after 5 seconds
+        setTimeout(() => {
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.style.transition = 'opacity 0.5s ease';
+                successMessage.style.opacity = '0';
+                setTimeout(() => successMessage.remove(), 500);
+            }
+
+            const errorMessage = document.getElementById('errorMessage');
+            if (errorMessage) {
+                errorMessage.style.transition = 'opacity 0.5s ease';
+                errorMessage.style.opacity = '0';
+                setTimeout(() => errorMessage.remove(), 500);
+            }
+        }, 5000);
+
+        // Initialize table row hover effects
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.table-row-hover').forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    if (!isLightTheme) {
+                        this.style.backgroundColor = 'rgba(30, 41, 59, 0.5)';
+                    } else {
+                        this.style.backgroundColor = 'rgba(243, 244, 246, 0.5)';
+                    }
+                });
+
+                row.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+
+            // Add click to view details on entire row
+            document.querySelectorAll('tbody tr').forEach((row, index) => {
+                row.addEventListener('dblclick', function() {
+                    showRowDetails(index);
+                });
+
+                // Single click highlights
+                row.addEventListener('click', function() {
+                    document.querySelectorAll('tbody tr').forEach(r => {
+                        r.classList.remove('bg-indigo-500/10');
+                    });
+                    this.classList.add('bg-indigo-500/10');
+                });
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + E for export
+            if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+                e.preventDefault();
+                exportBtn?.click();
+            }
+
+            // Ctrl + R for refresh
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                refreshBtn?.click();
+            }
+
+            // Escape to close modal
+            if (e.key === 'Escape') {
+                rowDetailsModal.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

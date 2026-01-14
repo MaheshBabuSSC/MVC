@@ -4,9 +4,17 @@ namespace MvcWebApiSwaggerApp.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
-        {
-            return Content("MVC is working");
-        }
+       
+            public IActionResult Index()
+            {
+                if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    return RedirectToAction("Index", "Dashboard");
+                }
+
+                return RedirectToAction("Login", "User");
+            }
+        
+
     }
 }

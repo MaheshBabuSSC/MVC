@@ -71,5 +71,29 @@ namespace MvcWebApiSwaggerApp.Services
         }
 
 
+
+        public int ValidateLogin(string email, string password)
+        {
+            // 1️⃣ Get hash + salt from DB via SP
+            var loginResult = _context.Database
+                .SqlQueryRaw<LoginResult>(
+                    "EXEC sp_GetUserForLogin @p0",
+                    email
+                )
+                .AsEnumerable()
+                .FirstOrDefault();
+
+            if (loginResult == null)
+                return 0;
+
+            // 2️⃣ Verify password
+            bool isValid = PasswordHelper.VerifyPassword(
+                password,
+                loginResult.PasswordHash,
+                loginResult.PasswordSalt
+            );
+
+            return isValid ? loginResult.UserId : 0;
+        }
     }
 }

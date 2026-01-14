@@ -77,7 +77,7 @@
     </style>
 </head>
 
-<body id="body" class="min-h-screen bg-slate-950 text-slate-100">
+<body id="body" class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900">
 
     <!-- ============================================ -->
     <!-- MAIN CONTAINER -->
@@ -87,20 +87,20 @@
         <!-- ============================================ -->
         <!-- TOP HEADER -->
         <!-- ============================================ -->
-        <header class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md shadow-lg">
+        <header class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white/95 backdrop-blur-md shadow-lg">
             <div class="flex items-center gap-3">
                 <div class="p-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600">
                     <i class="fa-solid fa-list-check text-white w-5 h-5"></i>
                 </div>
-                <h1 class="text-xl font-bold text-slate-100">Forms Dashboard</h1>
+                <h1 class="text-xl font-bold text-gray-900">Forms Dashboard</h1>
             </div>
 
             <div class="flex items-center gap-3">
                 <!-- Theme Toggle Button -->
                 <button id="themeToggle"
-                        class="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 shadow-md hover:shadow-lg transition-all"
+                        class="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 shadow-md hover:shadow-lg transition-all"
                         title="Toggle Light/Dark Theme">
-                    <i id="themeIcon" class="fa-solid fa-moon w-4 h-4"></i>
+                    <i id="themeIcon" class="fa-solid fa-sun w-4 h-4"></i>
                 </button>
 
                 <!-- Create New Form Button -->
@@ -120,11 +120,11 @@
             <!-- Stats Overview -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <!-- Total Forms Card -->
-                <div class="p-6 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-lg">
+                <div class="p-6 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-slate-400 mb-1">Total Forms</p>
-                            <p class="text-3xl font-bold text-slate-100">@Model.Count</p>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Total Forms</p>
+                            <p class="text-3xl font-bold text-gray-900">@Model.Count</p>
                         </div>
                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-600/20 flex items-center justify-center">
                             <i class="fa-solid fa-file-lines text-indigo-400 text-xl"></i>
@@ -133,11 +133,11 @@
                 </div>
 
                 <!-- Active Forms Card -->
-                <div class="p-6 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-lg">
+                <div class="p-6 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-slate-400 mb-1">Active Forms</p>
-                            <p class="text-3xl font-bold text-emerald-400">@Model.Count(f => f.IsActive)</p>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Active Forms</p>
+                            <p class="text-3xl font-bold text-emerald-600">@Model.Count(f => f.IsActive)</p>
                         </div>
                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-600/20 flex items-center justify-center">
                             <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
@@ -146,11 +146,11 @@
                 </div>
 
                 <!-- Inactive Forms Card -->
-                <div class="p-6 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-lg">
+                <div class="p-6 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-medium text-slate-400 mb-1">Inactive Forms</p>
-                            <p class="text-3xl font-bold text-rose-400">@Model.Count(f => !f.IsActive)</p>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Inactive Forms</p>
+                            <p class="text-3xl font-bold text-rose-600">@Model.Count(f => !f.IsActive)</p>
                         </div>
                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-rose-500/20 to-pink-600/20 flex items-center justify-center">
                             <i class="fa-solid fa-circle-pause text-rose-400 text-xl"></i>
@@ -160,15 +160,15 @@
             </div>
 
             <!-- Forms Table Container -->
-            <div class="bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
                 <!-- Table Header -->
-                <div class="px-6 py-4 border-b border-slate-800 bg-gradient-to-r from-indigo-900/30 to-purple-900/30">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50/50 to-purple-50/50">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-semibold text-slate-100">
+                        <h2 class="text-lg font-semibold text-gray-900">
                             <i class="fa-solid fa-table-list mr-2"></i>
                             All Forms
                         </h2>
-                        <div class="text-sm text-slate-400">
+                        <div class="text-sm text-gray-600">
                             Showing @Model.Count form@(Model.Count != 1 ? "s" : "")
                         </div>
                     </div>
@@ -178,7 +178,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
-                            <tr class="border-b border-slate-800">
+                            <tr class="border-b border-gray-200">
                                 <th class="py-4 px-6 text-left">
                                     <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-indigo-400">
                                         <i class="fa-solid fa-heading"></i>
@@ -210,16 +210,16 @@
                             {
                                 @foreach (var item in Model)
                                 {
-                                    <tr class="border-b border-slate-800/50 table-row-hover transition-all duration-200 fade-in">
+                                    <tr class="border-b border-gray-200/50 table-row-hover transition-all duration-200 fade-in">
                                         <!-- Form Title -->
                                         <td class="py-4 px-6">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-600/20 flex items-center justify-center">
-                                                    <i class="fa-solid fa-file-lines text-indigo-400"></i>
+                                                    <i class="fa-solid fa-file-lines text-indigo-600"></i>
                                                 </div>
                                                 <div>
-                                                    <p class="font-medium text-slate-100">@item.FormTitle</p>
-                                                    <p class="text-xs text-slate-400 mt-1">
+                                                    <p class="font-medium text-gray-900">@item.FormTitle</p>
+                                                    <p class="text-xs text-gray-600 mt-1">
                                                         <i class="fa-solid fa-calendar mr-1"></i>
                                                         Created: @item.FormTitle.ToString()
                                                     </p>
@@ -233,7 +233,7 @@
                                                 <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold">
                                                     @item.CreatedBy.Substring(0, 1).ToUpper()
                                                 </div>
-                                                <span class="text-slate-300">@item.CreatedBy</span>
+                                                <span class="text-gray-700">@item.CreatedBy</span>
                                             </div>
                                         </td>
 
@@ -303,10 +303,10 @@
                                     <td colspan="4" class="py-16 px-6 text-center">
                                         <div class="flex flex-col items-center justify-center">
                                             <div class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-600/10 flex items-center justify-center mb-4">
-                                                <i class="fa-solid fa-inbox text-slate-400 text-3xl"></i>
+                                                <i class="fa-solid fa-inbox text-gray-400 text-3xl"></i>
                                             </div>
-                                            <h3 class="text-lg font-medium text-slate-300 mb-2">No Forms Found</h3>
-                                            <p class="text-sm text-slate-400 mb-6 max-w-md">
+                                            <h3 class="text-lg font-medium text-gray-700 mb-2">No Forms Found</h3>
+                                            <p class="text-sm text-gray-600 mb-6 max-w-md">
                                                 You haven't created any forms yet. Start building your first form to collect data.
                                             </p>
                                             <a asp-controller="FormBuilder"
@@ -324,8 +324,8 @@
                 </div>
 
                 <!-- Table Footer -->
-                <div class="px-6 py-4 border-t border-slate-800 bg-slate-900/50">
-                    <div class="flex items-center justify-between text-sm text-slate-400">
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50/50">
+                    <div class="flex items-center justify-between text-sm text-gray-600">
                         <div>
                             <i class="fa-solid fa-info-circle mr-2"></i>
                             Click Activate/Deactivate to toggle form status
@@ -374,7 +374,7 @@
         // ============================================
         // THEME MANAGEMENT
         // ============================================
-        let isLightTheme = false;
+        let isLightTheme = true;
 
         function toggleTheme() {
             isLightTheme = !isLightTheme;

@@ -1,0 +1,58 @@
+﻿@model List<MvcWebApiSwaggerApp.Models.UserSubmissionVM>
+
+@{
+    ViewData["Title"] = "My Submissions";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<h2 class="mb-3">My Submitted Forms</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You have not submitted any forms yet.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Form Name</th>
+                <th>Submitted On</th>
+                <th style="width:220px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.FormTitle</td>
+                    <td>@item.CreatedAt.ToString("dd-MMM-yyyy HH:mm")</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary"
+                           href="/Reports/View?tableName=@item.TableName&id=@item.SubmissionId">
+                            View
+                        </a>
+
+                        <a class="btn btn-sm btn-warning"
+                           href="/Dashboard/Edit?tableName=@item.TableName&id=@item.SubmissionId">
+                            Edit
+                        </a>
+
+                        <form asp-action="Delete"
+                              method="post"
+                              style="display:inline"
+                              onsubmit="return confirm('Are you sure?');">
+                            <input type="hidden" name="tableName" value="@item.TableName" />
+                            <input type="hidden" name="submissionId" value="@item.SubmissionId" />
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

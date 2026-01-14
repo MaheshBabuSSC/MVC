@@ -1,0 +1,915 @@
+﻿@model List<MvcWebApiSwaggerApp.Models.FormSummary>
+
+@{
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+@* @{
+    ViewData["Title"] = "Dashboard | Form Portal";
+} *@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Smooth theme transitions */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Hide scrollbars */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animation for cards */
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @@keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-in {
+            animation: slideIn 0.4s ease-out;
+        }
+
+        /* Gradient backgrounds */
+        .gradient-bg-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gradient-bg-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .gradient-bg-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .gradient-bg-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .gradient-bg-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .gradient-bg-dark {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        /* Card hover effects */
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Button animations */
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+
+            .btn-hover:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 10px;
+        }
+
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: rgba(99, 102, 241, 0.7);
+            }
+
+        /* Glass morphism effect */
+        .glass-effect {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Shimmer loading effect */
+        @@keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Badge pulse effect */
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Floating animation */
+        @@keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body id="body" class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100">
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTAINER -->
+    <!-- ============================================ -->
+    <div class="flex flex-col h-screen">
+
+        <!-- ============================================ -->
+        <!-- TOP NAVBAR -->
+        <!-- ============================================ -->
+        <header class="sticky top-0 z-50 glass-effect border-b border-slate-800/50">
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <!-- Logo and Brand -->
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-xl gradient-bg-primary flex items-center justify-center shadow-lg floating">
+                                <i class="fa-solid fa-file-pen text-white text-lg"></i>
+                            </div>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 border-2 border-slate-900 pulse"></div>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
+                                User Portal
+                            </h1>
+                            <p class="text-xs text-slate-400">User Dashboard</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Section -->
+                    <div class="flex items-center gap-4">
+                        <!-- Search Bar -->
+                        <div class="relative hidden md:block">
+                            <input type="text"
+                                   placeholder="Search forms..."
+                                   class="w-64 pl-10 pr-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500"></i>
+                        </div>
+
+                        <!-- Notifications -->
+                        <div class="relative group">
+                            <button class="relative p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
+                                <i class="fa-regular fa-bell text-xl text-slate-300"></i>
+                                <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-xs flex items-center justify-center text-white font-bold">3</span>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-80 rounded-xl border border-slate-800 bg-slate-900/95 backdrop-blur-lg shadow-2xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="p-4 border-b border-slate-800">
+                                    <h3 class="font-semibold text-slate-100">Notifications</h3>
+                                </div>
+                                <div class="max-h-96 overflow-y-auto">
+                                    <div class="p-4 border-b border-slate-800/50 hover:bg-slate-800/30 cursor-pointer">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-8 h-8 rounded-full gradient-bg-success flex items-center justify-center">
+                                                <i class="fa-solid fa-check text-white text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-slate-100">Form Submitted</p>
+                                                <p class="text-xs text-slate-400 mt-1">Your "Employee Feedback" form was submitted successfully</p>
+                                                <p class="text-xs text-slate-500 mt-2">2 minutes ago</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 border-b border-slate-800/50 hover:bg-slate-800/30 cursor-pointer">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-8 h-8 rounded-full gradient-bg-warning flex items-center justify-center">
+                                                <i class="fa-solid fa-clock text-white text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-slate-100">Deadline Approaching</p>
+                                                <p class="text-xs text-slate-400 mt-1">"Quarterly Survey" closes in 24 hours</p>
+                                                <p class="text-xs text-slate-500 mt-2">5 hours ago</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 hover:bg-slate-800/30 cursor-pointer">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-8 h-8 rounded-full gradient-bg-info flex items-center justify-center">
+                                                <i class="fa-solid fa-plus text-white text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-slate-100">New Form Available</p>
+                                                <p class="text-xs text-slate-400 mt-1">"Customer Satisfaction Survey" is now open</p>
+                                                <p class="text-xs text-slate-500 mt-2">1 day ago</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t border-slate-800">
+                                    <a href="#" class="text-sm text-indigo-400 hover:text-indigo-300 font-medium text-center block">
+                                        View All Notifications
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Profile -->
+                        <div class="relative group">
+                            <button class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
+                                <div class="relative">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg">
+                                        U
+                                    </div>
+                                    <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 border-2 border-slate-900"></div>
+                                </div>
+                                <div class="text-left hidden lg:block">
+                                    <p class="text-sm font-medium text-slate-100">User Account</p>
+                                    <p class="text-xs text-slate-400">user@example.com</p>
+                                </div>
+                                <i class="fa-solid fa-chevron-down text-slate-400"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-56 rounded-xl border border-slate-800 bg-slate-900/95 backdrop-blur-lg shadow-2xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="p-4 border-b border-slate-800">
+                                    <p class="font-medium text-slate-100">User Account</p>
+                                    <p class="text-sm text-slate-400 truncate">user@example.com</p>
+                                </div>
+                                <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800/50 text-slate-300">
+                                    <i class="fa-solid fa-user w-4 h-4"></i>
+                                    <span>My Profile</span>
+                                </a>
+                                <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800/50 text-slate-300">
+                                    <i class="fa-solid fa-gear w-4 h-4"></i>
+                                    <span>Settings</span>
+                                </a>
+                                <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800/50 text-slate-300">
+                                    <i class="fa-solid fa-chart-bar w-4 h-4"></i>
+                                    <span>Analytics</span>
+                                </a>
+                                <div class="border-t border-slate-800">
+                                    <a href="#" class="flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-rose-500/20 hover:to-pink-600/20 text-rose-400">
+                                        <i class="fa-solid fa-right-from-bracket w-4 h-4"></i>
+                                        <span>Sign Out</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ============================================ -->
+        <!-- MAIN CONTENT -->
+        <!-- ============================================ -->
+        <main class="flex-1 overflow-auto custom-scrollbar p-6">
+            <!-- Welcome Banner -->
+            <div class="mb-8 rounded-2xl gradient-bg-dark p-8 relative overflow-hidden slide-in">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 rounded-full -translate-y-32 translate-x-32"></div>
+                <div class="relative z-10">
+                    <h1 class="text-3xl font-bold text-slate-100 mb-3">
+                        Welcome back, <span class="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">User</span>! 👋
+                    </h1>
+                    <p class="text-slate-300 max-w-2xl">
+                        You have <span class="font-semibold text-indigo-300">@Model.Count form@(Model.Count != 1 ? "s" : "")</span> available for submission.
+                        Fill out forms, track progress, and manage your submissions all in one place.
+                    </p>
+                    <div class="flex items-center gap-4 mt-6">
+                        <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700">
+                            <i class="fa-solid fa-clock text-amber-400"></i>
+                            <span class="text-sm text-slate-300">Last login: Today, 10:30 AM</span>
+                        </div>
+                        <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700">
+                            <i class="fa-solid fa-calendar-check text-emerald-400"></i>
+                            <span class="text-sm text-slate-300">Active forms: @Model.Count(f => f.IsActive)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 card-hover transition-all fade-in-up">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400 mb-2">Total Forms</p>
+                            <p class="text-3xl font-bold text-slate-100">@Model.Count</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-r from-indigo-500/20 to-purple-600/20 flex items-center justify-center">
+                            <i class="fa-solid fa-file-lines text-indigo-400 text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-800">
+                        <div class="flex items-center text-xs text-slate-400">
+                            <i class="fa-solid fa-arrow-up text-emerald-400 mr-2"></i>
+                            <span>All available forms</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 card-hover transition-all fade-in-up">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400 mb-2">Active Forms</p>
+                            <p class="text-3xl font-bold text-emerald-400">@Model.Count(f => f.IsActive)</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-600/20 flex items-center justify-center">
+                            <i class="fa-solid fa-bolt text-emerald-400 text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-800">
+                        <div class="flex items-center text-xs text-slate-400">
+                            <i class="fa-solid fa-check-circle text-emerald-400 mr-2"></i>
+                            <span>Ready for submission</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 card-hover transition-all fade-in-up">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400 mb-2">Completed</p>
+                            <p class="text-3xl font-bold text-cyan-400">0</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-r from-cyan-500/20 to-blue-600/20 flex items-center justify-center">
+                            <i class="fa-solid fa-check-circle text-cyan-400 text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-800">
+                        <div class="flex items-center text-xs text-slate-400">
+                            <i class="fa-solid fa-chart-line text-cyan-400 mr-2"></i>
+                            <span>Forms submitted by you</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 card-hover transition-all fade-in-up">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400 mb-2">Pending</p>
+                            <p class="text-3xl font-bold text-amber-400">0</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-600/20 flex items-center justify-center">
+                            <i class="fa-solid fa-clock text-amber-400 text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-800">
+                        <div class="flex items-center text-xs text-slate-400">
+                            <i class="fa-solid fa-hourglass-half text-amber-400 mr-2"></i>
+                            <span>Forms in progress</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Forms Grid -->
+                <div class="lg:col-span-2">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-slate-100">
+                            <i class="fa-solid fa-list-check mr-3"></i>
+                            Available Forms
+                        </h2>
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <select class="appearance-none bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 pr-8 text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500">
+                                    <option value="all">All Forms</option>
+                                    <option value="active">Active Only</option>
+                                    <option value="recent">Recently Added</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-slate-500 pointer-events-none"></i>
+                            </div>
+                            <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-all">
+                                <i class="fa-solid fa-filter"></i>
+                                <span>Filter</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (Model == null || !Model.Any())
+                    {
+                        <!-- Empty State -->
+                        <div class="text-center py-16 px-6 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700">
+                            <div class="w-24 h-24 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-600/10 flex items-center justify-center mx-auto mb-6">
+                                <i class="fa-solid fa-inbox text-slate-400 text-4xl"></i>
+                            </div>
+                            <h3 class="text-xl font-medium text-slate-300 mb-3">No Forms Available</h3>
+                            <p class="text-slate-400 max-w-md mx-auto mb-8">
+                                There are currently no forms available for submission. Please check back later or contact your administrator.
+                            </p>
+                            <button class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg gradient-bg-primary hover:opacity-90 text-white font-medium shadow-lg hover:shadow-xl transition-all">
+                                <i class="fa-solid fa-refresh"></i>
+                                <span>Refresh Page</span>
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            @foreach (var form in Model)
+                            {
+                                <div class="group bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 card-hover transition-all fade-in-up">
+                                    <!-- Form Header -->
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-xl @(form.IsActive ? "bg-gradient-to-r from-emerald-500/20 to-teal-600/20" : "bg-gradient-to-r from-slate-700/50 to-slate-800/50") flex items-center justify-center">
+                                                <i class="@(form.IsActive ? "fa-solid fa-file-circle-check text-emerald-400" : "fa-solid fa-file-circle-xmark text-slate-500") text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="text-lg font-semibold text-slate-100 group-hover:text-indigo-300 transition-colors">
+                                                    @form.FormTitle
+                                                </h3>
+                                                <div class="flex items-center gap-2 mt-1">
+                                                    @if (form.IsActive)
+                                                    {
+                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+                                                            <i class="fa-solid fa-circle-play mr-1 w-3 h-3"></i>
+                                                            Active
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-slate-600 to-slate-700 text-slate-300">
+                                                            <i class="fa-solid fa-circle-pause mr-1 w-3 h-3"></i>
+                                                            Inactive
+                                                        </span>
+                                                    }
+                                                    <span class="text-xs text-slate-500">
+                                                        <i class="fa-solid fa-calendar mr-1"></i>
+                                                        Created recently
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button class="p-2 rounded-lg hover:bg-slate-800/50 text-slate-400 hover:text-slate-300 transition-colors">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Form Description -->
+                                    <p class="text-slate-300 text-sm mb-6 line-clamp-2">
+                                        @(string.IsNullOrEmpty(form.FormDescription) ? "No description available." : form.FormDescription)
+                                    </p>
+
+                                    <!-- Progress Bar (Optional) -->
+                                    <div class="mb-6">
+                                        <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                                            <span>Completion</span>
+                                            <span>0%</span>
+                                        </div>
+                                        <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
+                                            <div class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="flex items-center justify-between pt-4 border-t border-slate-800">
+                                        <div class="flex items-center gap-2 text-sm text-slate-400">
+                                            <i class="fa-solid fa-user text-slate-500"></i>
+                                            <span>By: @form.CreatedBy</span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            @if (form.IsActive)
+                                            {
+                                                <a asp-controller="Dashboard"
+                                                   asp-action="Submit"
+                                                   asp-route-id="@form.FormId"
+                                                   class="inline-flex items-center gap-2 px-4 py-2 rounded-lg gradient-bg-primary hover:opacity-90 text-white font-medium shadow-lg hover:shadow-xl btn-hover transition-all">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                    <span>Fill Form</span>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <button class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 cursor-not-allowed" disabled>
+                                                    <i class="fa-solid fa-lock"></i>
+                                                    <span>Inactive</span>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- Sidebar - Recent Activity & Quick Actions -->
+                <div class="space-y-8">
+                    <!-- Quick Actions -->
+                    <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-amber-400"></i>
+                            Quick Actions
+                        </h3>
+                        <div class="space-y-3">
+                            <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 transition-all group">
+                                <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-600/20 flex items-center justify-center">
+                                    <i class="fa-solid fa-history text-indigo-400"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-slate-100 group-hover:text-indigo-300">Recent Submissions</p>
+                                    <p class="text-xs text-slate-400">View your last 5 form submissions</p>
+                                </div>
+                            </a>
+                            <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 transition-all group">
+                                <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-emerald-500/20 to-teal-600/20 flex items-center justify-center">
+                                    <i class="fa-solid fa-chart-line text-emerald-400"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-slate-100 group-hover:text-emerald-300">Progress Dashboard</p>
+                                    <p class="text-xs text-slate-400">Track your form completion rate</p>
+                                </div>
+                            </a>
+                            <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/50 transition-all group">
+                                <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-600/20 flex items-center justify-center">
+                                    <i class="fa-solid fa-download text-amber-400"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-slate-100 group-hover:text-amber-300">Export Submissions</p>
+                                    <p class="text-xs text-slate-400">Download your form responses</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-cyan-400"></i>
+                            Recent Activity
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-pen text-white text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-slate-100">Started "Employee Feedback" form</p>
+                                    <p class="text-xs text-slate-400">You began filling out this form</p>
+                                    <p class="text-xs text-slate-500 mt-1">2 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-check text-white text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-slate-100">Submitted "Customer Survey"</p>
+                                    <p class="text-xs text-slate-400">Your response was recorded successfully</p>
+                                    <p class="text-xs text-slate-500 mt-1">1 day ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-600 flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-eye text-white text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-slate-100">Viewed "Product Feedback" form</p>
+                                    <p class="text-xs text-slate-400">You previewed this form details</p>
+                                    <p class="text-xs text-slate-500 mt-1">3 days ago</p>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#" class="block text-center text-sm text-indigo-400 hover:text-indigo-300 font-medium mt-6 pt-4 border-t border-slate-800">
+                            View All Activity
+                        </a>
+                    </div>
+
+                    <!-- Statistics Chart -->
+                    <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-purple-400"></i>
+                            Form Statistics
+                        </h3>
+                        <div class="h-48 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="w-24 h-24 rounded-full border-8 border-transparent border-t-indigo-500 border-r-purple-500 border-b-pink-500 border-l-cyan-500 animate-spin-slow mx-auto mb-4"></div>
+                                <p class="text-slate-400 text-sm">Statistics chart would appear here</p>
+                                <p class="text-xs text-slate-500 mt-2">Connect to analytics service</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============================================ -->
+        <!-- FOOTER -->
+        <!-- ============================================ -->
+        <footer class="mt-8 px-6 py-4 border-t border-slate-800/50 bg-slate-900/50">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="text-sm text-slate-400">
+                    <p>© @DateTime.Now.Year Form Portal. All rights reserved.</p>
+                </div>
+                <div class="flex items-center gap-6 text-sm text-slate-400">
+                    <a href="#" class="hover:text-slate-300 transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-slate-300 transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-slate-300 transition-colors">Support</a>
+                    <a href="#" class="hover:text-slate-300 transition-colors">Contact</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================ -->
+    <script>
+        // ============================================
+        // DOM ELEMENT REFERENCES
+        // ============================================
+        const body = document.getElementById("body");
+
+        // ============================================
+        // CHART.JS INITIALIZATION
+        // ============================================
+        function initializeCharts() {
+            // This is a placeholder for chart initialization
+            // In a real app, you would fetch data and create charts here
+            console.log('Charts would be initialized here');
+        }
+
+        // ============================================
+        // FORM SEARCH FUNCTIONALITY
+        // ============================================
+        function initializeSearch() {
+            const searchInput = document.querySelector('input[placeholder="Search forms..."]');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const formCards = document.querySelectorAll('.card-hover');
+
+                    formCards.forEach(card => {
+                        const title = card.querySelector('h3').textContent.toLowerCase();
+                        const description = card.querySelector('p.text-slate-300')?.textContent.toLowerCase() || '';
+
+                        if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        }
+
+        // ============================================
+        // NOTIFICATION BELL ANIMATION
+        // ============================================
+        function initializeNotifications() {
+            const notificationBell = document.querySelector('.fa-bell');
+            if (notificationBell) {
+                // Add subtle animation to notification bell
+                setInterval(() => {
+                    notificationBell.style.transform = 'rotate(10deg)';
+                    setTimeout(() => {
+                        notificationBell.style.transform = 'rotate(-10deg)';
+                    }, 300);
+                    setTimeout(() => {
+                        notificationBell.style.transform = 'rotate(0deg)';
+                    }, 600);
+                }, 10000); // Every 10 seconds
+            }
+        }
+
+        // ============================================
+        // PROGRESS BARS ANIMATION
+        // ============================================
+        function animateProgressBars() {
+            const progressBars = document.querySelectorAll('.bg-gradient-to-r.from-indigo-500.to-purple-600');
+            progressBars.forEach(bar => {
+                // Animate from 0% to current width
+                const currentWidth = bar.style.width || '0%';
+                bar.style.width = '0%';
+
+                setTimeout(() => {
+                    bar.style.transition = 'width 1.5s ease-in-out';
+                    bar.style.width = currentWidth;
+                }, 500);
+            });
+        }
+
+        // ============================================
+        // CARD HOVER EFFECTS
+        // ============================================
+        function initializeCardHoverEffects() {
+            const cards = document.querySelectorAll('.card-hover');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    const icon = this.querySelector('.fa-file-circle-check, .fa-file-circle-xmark');
+                    if (icon) {
+                        icon.style.transform = 'scale(1.2)';
+                        icon.style.transition = 'transform 0.3s ease';
+                    }
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    const icon = this.querySelector('.fa-file-circle-check, .fa-file-circle-xmark');
+                    if (icon) {
+                        icon.style.transform = 'scale(1)';
+                    }
+                });
+            });
+        }
+
+        // ============================================
+        // LOADING STATES
+        // ============================================
+        function simulateLoading() {
+            // Show shimmer effect on cards for 1 second
+            const cards = document.querySelectorAll('.card-hover');
+            cards.forEach(card => {
+                card.classList.add('shimmer');
+            });
+
+            setTimeout(() => {
+                cards.forEach(card => {
+                    card.classList.remove('shimmer');
+                });
+
+                // Animate progress bars after loading
+                animateProgressBars();
+            }, 1000);
+        }
+
+        // ============================================
+        // KEYBOARD SHORTCUTS
+        // ============================================
+        function initializeKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + F to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                    e.preventDefault();
+                    const searchInput = document.querySelector('input[placeholder="Search forms..."]');
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                }
+
+                // Ctrl/Cmd + / to open notifications
+                if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+                    e.preventDefault();
+                    const notificationBtn = document.querySelector('.fa-bell').closest('button');
+                    if (notificationBtn) {
+                        notificationBtn.click();
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all features
+            initializeCharts();
+            initializeSearch();
+            initializeNotifications();
+            initializeCardHoverEffects();
+            initializeKeyboardShortcuts();
+
+            // Simulate initial loading
+            simulateLoading();
+
+            // Add spin animation for statistics chart
+            const style = document.createElement('style');
+            style.textContent = `
+                @@keyframes spin-slow {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                .animate-spin-slow {
+                    animation: spin-slow 3s linear infinite;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Add click effects to all buttons
+            const buttons = document.querySelectorAll('button, a[href]');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Add ripple effect
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+
+                    ripple.style.cssText = `
+                        position: absolute;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.3);
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        width: ${size}px;
+                        height: ${size}px;
+                        top: ${y}px;
+                        left: ${x}px;
+                        pointer-events: none;
+                    `;
+
+                    this.appendChild(ripple);
+
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // Add ripple animation style
+            const rippleStyle = document.createElement('style');
+            rippleStyle.textContent = `
+                @@keyframes ripple {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(rippleStyle);
+        });
+
+        // ============================================
+        // WINDOW RESIZE HANDLING
+        // ============================================
+        window.addEventListener('resize', function() {
+            // Reinitialize any responsive elements
+            initializeCardHoverEffects();
+        });
+    </script>
+</body>
+</html>

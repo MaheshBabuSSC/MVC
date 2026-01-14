@@ -1,0 +1,637 @@
+﻿@model List<MvcWebApiSwaggerApp.Models.FormSummary>
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Reports";
+}
+@{
+    ViewData["Title"] = "Reports Dashboard";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports Dashboard</title>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        /* Smooth theme transitions */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Hide scrollbars */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animation for status badges */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Hover effects for table rows */
+        .table-row-hover:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Button animations */
+        .btn-hover {
+            transition: all 0.2s ease;
+        }
+
+            .btn-hover:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+        /* Gradient backgrounds */
+        .gradient-bg-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gradient-bg-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .gradient-bg-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+    </style>
+</head>
+
+<body id="body" class="min-h-screen bg-slate-950 text-slate-100">
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTAINER -->
+    <!-- ============================================ -->
+    <div class="flex flex-col h-screen">
+
+        <!-- ============================================ -->
+        <!-- TOP HEADER -->
+        <!-- ============================================ -->
+        <header class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-lg gradient-bg-info">
+                    <i class="fa-solid fa-chart-bar text-white w-5 h-5"></i>
+                </div>
+                <h1 class="text-xl font-bold text-slate-100">Reports Dashboard</h1>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Theme Toggle Button -->
+                <button id="themeToggle"
+                        class="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 shadow-md hover:shadow-lg transition-all"
+                        title="Toggle Light/Dark Theme">
+                    <i id="themeIcon" class="fa-solid fa-moon w-4 h-4"></i>
+                </button>
+
+                <!-- Back to Forms Button -->
+                <a asp-area="Admin"
+                   asp-controller="FormBuilder"
+                   asp-action="Index"
+                   class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-medium shadow-md hover:shadow-lg btn-hover transition-all">
+                    <i class="fa-solid fa-arrow-left w-4 h-4"></i>
+                    <span>Back to Forms</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- ============================================ -->
+        <!-- MAIN CONTENT -->
+        <!-- ============================================ -->
+        <main class="flex-1 overflow-auto hide-scrollbar p-6">
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Total Reports Card -->
+                <div class="p-6 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400 mb-1">Total Reports</p>
+                            <p class="text-3xl font-bold text-slate-100">@Model.Count</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-600/20 flex items-center justify-center">
+                            <i class="fa-solid fa-chart-pie text-indigo-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-400">
+                        <i class="fa-solid fa-circle-info mr-1"></i>
+                        <span>All form reports available</span>
+                    </div>
+                </div>
+
+                <!-- Active Forms with Reports -->
+                <div class="p-6 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400 mb-1">Active Forms</p>
+                            <p class="text-3xl font-bold text-emerald-400">@Model.Count(f => f.IsActive)</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-600/20 flex items-center justify-center">
+                            <i class="fa-solid fa-chart-line text-emerald-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-400">
+                        <i class="fa-solid fa-bolt text-amber-400 mr-1"></i>
+                        <span>Forms currently collecting data</span>
+                    </div>
+                </div>
+
+                <!-- Inactive Forms -->
+                <div class="p-6 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-400 mb-1">Inactive Forms</p>
+                            <p class="text-3xl font-bold text-rose-400">@Model.Count(f => !f.IsActive)</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-rose-500/20 to-pink-600/20 flex items-center justify-center">
+                            <i class="fa-solid fa-chart-bar text-rose-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-400">
+                        <i class="fa-solid fa-pause text-slate-400 mr-1"></i>
+                        <span>Forms not currently active</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Table Container -->
+            <div class="bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+                <!-- Table Header -->
+                <div class="px-6 py-4 border-b border-slate-800 bg-gradient-to-r from-indigo-900/30 to-purple-900/30">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-slate-100">
+                            <i class="fa-solid fa-table-list mr-2"></i>
+                            Available Reports
+                        </h2>
+                        <div class="text-sm text-slate-400">
+                            <i class="fa-solid fa-filter mr-1"></i>
+                            Showing @Model.Count report@(Model.Count != 1 ? "s" : "")
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Responsive Table Container -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-slate-800">
+                                <th class="py-4 px-6 text-left">
+                                    <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-indigo-400">
+                                        <i class="fa-solid fa-file-lines"></i>
+                                        Form Name
+                                    </div>
+                                </th>
+                                <th class="py-4 px-6 text-left">
+                                    <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-indigo-400">
+                                        <i class="fa-solid fa-user"></i>
+                                        Created By
+                                    </div>
+                                </th>
+                                <th class="py-4 px-6 text-left">
+                                    <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-indigo-400">
+                                        <i class="fa-solid fa-circle"></i>
+                                        Status
+                                    </div>
+                                </th>
+                                <th class="py-4 px-6 text-left">
+                                    <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-indigo-400">
+                                        <i class="fa-solid fa-chart-bar"></i>
+                                        Actions
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Any())
+                            {
+                                @foreach (var form in Model)
+                                {
+                                    <tr class="border-b border-slate-800/50 table-row-hover transition-all duration-200 fade-in">
+                                        <!-- Form Name -->
+                                        <td class="py-4 px-6">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-600/20 flex items-center justify-center">
+                                                    <i class="fa-solid fa-chart-pie text-indigo-400"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium text-slate-100">@form.FormTitle</p>
+                                                    <p class="text-xs text-slate-400 mt-1">
+                                                        <i class="fa-solid fa-database mr-1"></i>
+                                                        Table: @form.TableName
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Created By -->
+                                        <td class="py-4 px-6">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold">
+                                                    @form.CreatedBy.Substring(0, 1).ToUpper()
+                                                </div>
+                                                <span class="text-slate-300">@form.CreatedBy</span>
+                                            </div>
+                                        </td>
+
+                                        <!-- Status -->
+                                        <td class="py-4 px-6">
+                                            @if (form.IsActive)
+                                            {
+                                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm">
+                                                    <i class="fa-solid fa-circle-play mr-1.5 w-3 h-3"></i>
+                                                    Active
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-sm">
+                                                    <i class="fa-solid fa-circle-pause mr-1.5 w-3 h-3"></i>
+                                                    Inactive
+                                                </span>
+                                            }
+                                        </td>
+
+                                        <!-- Actions -->
+                                        <td class="py-4 px-6">
+                                            <div class="flex items-center gap-3">
+                                                <!-- View Report Button -->
+                                                <a asp-area="Admin"
+                                                   asp-controller="Reports"
+                                                   asp-action="Details"
+                                                   asp-route-tableName="@form.TableName"
+                                                   class="inline-flex items-center gap-2 px-4 py-2 rounded-lg gradient-bg-info hover:opacity-90 text-white text-sm font-medium shadow-md hover:shadow-lg btn-hover transition-all">
+                                                    <i class="fa-solid fa-chart-bar w-4 h-4"></i>
+                                                    <span>View Report</span>
+                                                </a>
+
+                                                <!-- Export Options (Optional) -->
+                                                @* <div class="relative group">
+                                                    <button class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white text-sm font-medium btn-hover transition-all">
+                                                        <i class="fa-solid fa-download w-4 h-4"></i>
+                                                        <span>Export</span>
+                                                        <i class="fa-solid fa-chevron-down w-3 h-3"></i>
+                                                    </button>
+                                                    <div class="absolute right-0 mt-1 w-40 rounded-lg border border-slate-700 bg-slate-900 shadow-lg text-xs overflow-hidden z-30 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                                        <a href="#" class="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center gap-2 text-slate-200">
+                                                            <i class="fa-solid fa-file-excel w-4"></i>
+                                                            Export as Excel
+                                                        </a>
+                                                        <a href="#" class="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center gap-2 text-slate-200">
+                                                            <i class="fa-solid fa-file-csv w-4"></i>
+                                                            Export as CSV
+                                                        </a>
+                                                        <a href="#" class="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center gap-2 text-slate-200">
+                                                            <i class="fa-solid fa-file-pdf w-4"></i>
+                                                            Export as PDF
+                                                        </a>
+                                                    </div>
+                                                </div> *@
+
+                                                <!-- View Form Button -->
+                                                <a asp-area="Admin"
+                                                   asp-controller="FormBuilder"
+                                                   asp-action="Index"
+                                                   class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white text-sm font-medium btn-hover transition-all">
+                                                    <i class="fa-solid fa-eye w-4 h-4"></i>
+                                                    <span>View Form</span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <!-- Empty State -->
+                                <tr>
+                                    <td colspan="4" class="py-16 px-6 text-center">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-600/10 flex items-center justify-center mb-4">
+                                                <i class="fa-solid fa-chart-bar text-slate-400 text-3xl"></i>
+                                            </div>
+                                            <h3 class="text-lg font-medium text-slate-300 mb-2">No Reports Available</h3>
+                                            <p class="text-sm text-slate-400 mb-6 max-w-md">
+                                                No form reports are currently available. Create forms first to generate reports.
+                                            </p>
+                                            <a asp-area="Admin"
+                                               asp-controller="FormBuilder"
+                                               asp-action="Create"
+                                               class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg gradient-bg-primary hover:opacity-90 text-white font-medium shadow-md hover:shadow-lg btn-hover transition-all">
+                                                <i class="fa-solid fa-plus w-4 h-4"></i>
+                                                <span>Create Your First Form</span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer -->
+                <div class="px-6 py-4 border-t border-slate-800 bg-slate-900/50">
+                    <div class="flex items-center justify-between text-sm text-slate-400">
+                        <div>
+                            <i class="fa-solid fa-circle-info mr-2"></i>
+                            Click "View Report" to see detailed analytics for each form
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span>Total: @Model.Count report@(Model.Count != 1 ? "s" : "")</span>
+                            <span>•</span>
+                            <span>Active: @Model.Count(f => f.IsActive)</span>
+                            <span>•</span>
+                            <span>Inactive: @Model.Count(f => !f.IsActive)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Help Card 1 -->
+                <div class="p-5 rounded-xl bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-800/30">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-600/20 flex items-center justify-center">
+                            <i class="fa-solid fa-chart-line text-indigo-400"></i>
+                        </div>
+                        <h4 class="font-medium text-slate-100">Real-time Analytics</h4>
+                    </div>
+                    <p class="text-sm text-slate-400">
+                        View live data and analytics for all your forms. Track submissions, responses, and user engagement in real-time.
+                    </p>
+                </div>
+
+                <!-- Help Card 2 -->
+                <div class="p-5 rounded-xl bg-gradient-to-br from-emerald-900/20 to-teal-900/20 border border-emerald-800/30">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-emerald-500/20 to-teal-600/20 flex items-center justify-center">
+                            <i class="fa-solid fa-download text-emerald-400"></i>
+                        </div>
+                        <h4 class="font-medium text-slate-100">Export Options</h4>
+                    </div>
+                    <p class="text-sm text-slate-400">
+                        Export your reports in multiple formats including Excel, CSV, and PDF for further analysis and sharing.
+                    </p>
+                </div>
+
+                <!-- Help Card 3 -->
+                <div class="p-5 rounded-xl bg-gradient-to-br from-blue-900/20 to-cyan-900/20 border border-blue-800/30">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500/20 to-cyan-600/20 flex items-center justify-center">
+                            <i class="fa-solid fa-filter text-blue-400"></i>
+                        </div>
+                        <h4 class="font-medium text-slate-100">Advanced Filtering</h4>
+                    </div>
+                    <p class="text-sm text-slate-400">
+                        Filter reports by date range, status, and other criteria to get the exact insights you need.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Success Message Display -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div id="successMessage" class="fixed top-4 right-4 px-6 py-3 rounded-lg gradient-bg-success text-white shadow-lg flex items-center gap-2 z-50 fade-in">
+                    <i class="fa-solid fa-check-circle"></i>
+                    @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div id="errorMessage" class="fixed top-4 right-4 px-6 py-3 rounded-lg bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-lg flex items-center gap-2 z-50 fade-in">
+                    <i class="fa-solid fa-exclamation-circle"></i>
+                    @TempData["ErrorMessage"]
+                </div>
+            }
+        </main>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================ -->
+    <script>
+        // ============================================
+        // DOM ELEMENT REFERENCES
+        // ============================================
+        const body = document.getElementById("body");
+        const themeToggle = document.getElementById("themeToggle");
+        const themeIcon = document.getElementById("themeIcon");
+
+        // ============================================
+        // THEME MANAGEMENT
+        // ============================================
+        let isLightTheme = false;
+
+        function toggleTheme() {
+            isLightTheme = !isLightTheme;
+
+            if (isLightTheme) {
+                // Apply light theme
+                body.className = "min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900";
+                themeIcon.className = "fa-solid fa-sun w-4 h-4";
+
+                // Update header
+                const header = document.querySelector('header');
+                if (header) {
+                    header.className = "flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white/95 backdrop-blur-md shadow-lg";
+                }
+
+                // Update table rows
+                document.querySelectorAll('.table-row-hover').forEach(row => {
+                    row.addEventListener('mouseenter', function () {
+                        this.style.backgroundColor = 'rgba(243, 244, 246, 0.5)';
+                    });
+                    row.addEventListener('mouseleave', function () {
+                        this.style.backgroundColor = '';
+                    });
+                });
+
+                // Update all gradient backgrounds
+                document.querySelectorAll('.bg-gradient-to-br.from-slate-800.to-slate-900').forEach(card => {
+                    card.className = card.className.replace('bg-gradient-to-br from-slate-800 to-slate-900', 'bg-gradient-to-br from-gray-100 to-gray-200');
+                });
+
+                // Update border colors
+                document.querySelectorAll('.border-slate-800').forEach(el => {
+                    el.className = el.className.replace('border-slate-800', 'border-gray-300');
+                });
+
+                document.querySelectorAll('.border-slate-700').forEach(el => {
+                    el.className = el.className.replace('border-slate-700', 'border-gray-400');
+                });
+
+                // Update text colors
+                document.querySelectorAll('.text-slate-100').forEach(el => {
+                    el.className = el.className.replace('text-slate-100', 'text-gray-900');
+                });
+
+                document.querySelectorAll('.text-slate-400').forEach(el => {
+                    el.className = el.className.replace('text-slate-400', 'text-gray-600');
+                });
+
+                document.querySelectorAll('.text-slate-300').forEach(el => {
+                    el.className = el.className.replace('text-slate-300', 'text-gray-700');
+                });
+
+            } else {
+                // Apply dark theme
+                body.className = "min-h-screen bg-slate-950 text-slate-100";
+                themeIcon.className = "fa-solid fa-moon w-4 h-4";
+
+                // Update header
+                const header = document.querySelector('header');
+                if (header) {
+                    header.className = "flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md shadow-lg";
+                }
+
+                // Update table rows
+                document.querySelectorAll('.table-row-hover').forEach(row => {
+                    row.addEventListener('mouseenter', function () {
+                        this.style.backgroundColor = 'rgba(30, 41, 59, 0.5)';
+                    });
+                    row.addEventListener('mouseleave', function () {
+                        this.style.backgroundColor = '';
+                    });
+                });
+
+                // Update all gradient backgrounds
+                document.querySelectorAll('.bg-gradient-to-br.from-gray-100.to-gray-200').forEach(card => {
+                    card.className = card.className.replace('bg-gradient-to-br from-gray-100 to-gray-200', 'bg-gradient-to-br from-slate-800 to-slate-900');
+                });
+
+                // Update border colors
+                document.querySelectorAll('.border-gray-300').forEach(el => {
+                    el.className = el.className.replace('border-gray-300', 'border-slate-800');
+                });
+
+                document.querySelectorAll('.border-gray-400').forEach(el => {
+                    el.className = el.className.replace('border-gray-400', 'border-slate-700');
+                });
+
+                // Update text colors
+                document.querySelectorAll('.text-gray-900').forEach(el => {
+                    el.className = el.className.replace('text-gray-900', 'text-slate-100');
+                });
+
+                document.querySelectorAll('.text-gray-600').forEach(el => {
+                    el.className = el.className.replace('text-gray-600', 'text-slate-400');
+                });
+
+                document.querySelectorAll('.text-gray-700').forEach(el => {
+                    el.className = el.className.replace('text-gray-700', 'text-slate-300');
+                });
+            }
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Auto-hide success/error messages after 5 seconds
+        setTimeout(() => {
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.style.transition = 'opacity 0.5s ease';
+                successMessage.style.opacity = '0';
+                setTimeout(() => successMessage.remove(), 500);
+            }
+
+            const errorMessage = document.getElementById('errorMessage');
+            if (errorMessage) {
+                errorMessage.style.transition = 'opacity 0.5s ease';
+                errorMessage.style.opacity = '0';
+                setTimeout(() => errorMessage.remove(), 500);
+            }
+        }, 5000);
+
+        // Initialize table row hover effects
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.table-row-hover').forEach(row => {
+                row.addEventListener('mouseenter', function () {
+                    if (!isLightTheme) {
+                        this.style.backgroundColor = 'rgba(30, 41, 59, 0.5)';
+                    } else {
+                        this.style.backgroundColor = 'rgba(243, 244, 246, 0.5)';
+                    }
+                });
+
+                row.addEventListener('mouseleave', function () {
+                    this.style.backgroundColor = '';
+                });
+            });
+
+            // Add tooltips to export buttons
+            const exportButtons = document.querySelectorAll('.relative.group button');
+            exportButtons.forEach(button => {
+                button.addEventListener('mouseenter', function () {
+                    const dropdown = this.nextElementSibling;
+                    if (dropdown) {
+                        dropdown.style.opacity = '1';
+                        dropdown.style.visibility = 'visible';
+                    }
+                });
+
+                button.addEventListener('mouseleave', function () {
+                    const dropdown = this.nextElementSibling;
+                    if (dropdown) {
+                        setTimeout(() => {
+                            if (!dropdown.matches(':hover')) {
+                                dropdown.style.opacity = '0';
+                                dropdown.style.visibility = 'hidden';
+                            }
+                        }, 100);
+                    }
+                });
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            // Ctrl + F to focus search (if you add search functionality)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                // Focus search input if exists
+                const searchInput = document.querySelector('input[type="search"]');
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }
+
+            // Escape to close dropdowns
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.opacity-100.visible').forEach(el => {
+                    el.style.opacity = '0';
+                    el.style.visibility = 'hidden';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

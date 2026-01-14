@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using MvcWebApiSwaggerApp.Models;
 using System.Text.Json;
+
+
 
 public class FormService
 {
@@ -55,13 +58,13 @@ public class FormService
         );
     }
 
-    public List<FormSummary> GetForms()
-    {
-        return _context.Set<FormSummary>()
-            .FromSqlRaw("EXEC sp_GetForms")
-            .AsNoTracking()
-            .ToList();
-    }
+    //public List<FormSummary> GetForms()
+    //{
+    //    return _context.Set<FormSummary>()
+    //        .FromSqlRaw("EXEC sp_GetForms")
+    //        .AsNoTracking()
+    //        .ToList();
+    //}
 
     public void ToggleFormStatus(int formId, bool isActive)
     {
@@ -72,6 +75,56 @@ public class FormService
         );
     }
 
+
+    public List<FormSummary> GetForms()
+    {
+        return _context.Set<FormSummary>()
+            .FromSqlRaw("EXEC sp_GetForms")
+            .ToList();
+    }
+
+    public List<DynamicFormField> GetFields(string tableName)
+    {
+        return _context.Set<DynamicFormField>()
+            .FromSqlRaw("EXEC sp_GetFormFields @p0", tableName)
+            .ToList();
+    }
+
+    public void SaveFormData(
+        string tableName,
+        Dictionary<string, string> values,
+        int submittedByUserId
+    )
+    {
+        // Remove antiforgery token if exists
+        values.Remove("__RequestVerificationToken");
+
+        // 🔹 Add system column automatically
+        values["SubmittedByUserId"] = submittedByUserId.ToString();
+
+        var columns = string.Join(
+            ",",
+            values.Keys.Select(k => $"[{k}]")
+        );
+
+        var parameters = string.Join(
+            ",",
+            values.Keys.Select(k => $"@{k.Replace(" ", "_")}")
+        );
+
+        var sql = $"INSERT INTO [{tableName}] ({columns}) VALUES ({parameters})";
+
+        var sqlParams = values.Select(v =>
+            new SqlParameter(
+                $"@{v.Key.Replace(" ", "_")}",
+                string.IsNullOrWhiteSpace(v.Value)
+                    ? DBNull.Value
+                    : v.Value
+            )
+        ).ToArray();
+
+        _context.Database.ExecuteSqlRaw(sql, sqlParams);
+    }
 
 
 }

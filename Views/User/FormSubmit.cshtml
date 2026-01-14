@@ -1,0 +1,76 @@
+﻿@model MvcWebApiSwaggerApp.Models.DynamicFormViewModel
+
+@{
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+    ViewData["Title"] = Model.FormTitle;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>@ViewData["Title"]</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100">
+
+    <header class="px-6 py-4 bg-slate-900 border-b border-slate-800">
+        <h1 class="text-xl font-bold">@Model.FormTitle</h1>
+    </header>
+
+    <main class="max-w-3xl mx-auto p-6">
+
+        <form method="post" class="space-y-6">
+
+            <input type="hidden" name="FormId" value="@Model.FormId" />
+            <input type="hidden" name="TableName" value="@Model.TableName" />
+
+            @foreach (var field in Model.Fields)
+            {
+                <div>
+                    <label class="block text-sm mb-1">
+                        @field.Label
+                        @if (field.Required)
+                        {
+                            <span class="text-red-500">*</span>
+                        }
+                    </label>
+
+                    @* TEXT / NUMBER / DATE *@
+                    @if (field.Type == "text" || field.Type == "number" || field.Type == "date")
+                    {
+                        <input type="@field.Type"
+                               name="@field.Name"
+                               class="w-full px-4 py-2 rounded bg-slate-800 border border-slate-700"
+                               @(field.Required ? "required" : "") />
+                    }
+
+                    @* DROPDOWN *@
+                    else if (field.Type == "dropdown")
+                    {
+                        <select name="@field.Name"
+                                class="w-full px-4 py-2 rounded bg-slate-800 border border-slate-700"
+                                @(field.Required ? "required" : "")>
+                            <option value="">-- Select --</option>
+                            @foreach (var opt in field.Options ?? new List<string>())
+                            {
+                                <option value="@opt">@opt</option>
+                            }
+                        </select>
+                    }
+                </div>
+            }
+
+            <button type="submit"
+                    class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold">
+                Submit
+            </button>
+
+        </form>
+
+    </main>
+
+</body>
+</html>
