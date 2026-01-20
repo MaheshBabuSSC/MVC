@@ -13,6 +13,11 @@ public class AppDbContext : DbContext
     public DbSet<DynamicFormField> DynamicFormFields { get; set; }
 
 
+    public DbSet<UsersList> UsersSummaries { get; set; }
+
+
+
+
 
 
 

@@ -5,6 +5,8 @@
     <title>@ViewData["Title"] - Admin</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body class="bg-slate-100">
@@ -22,7 +24,7 @@
                    asp-controller="FormBuilder"
                    asp-action="Index"
                    class="block px-4 py-2 rounded hover:bg-slate-800">
-                    📝 Form Builder
+                    📝 Forms
                 </a>
 
                 <a asp-area="Admin"
@@ -32,10 +34,64 @@
                     📊 Reports
                 </a>
 
-                <a href="#"
+                <a asp-controller="Dashboard"
+                   asp-action="UserList"
                    class="block px-4 py-2 rounded hover:bg-slate-800">
                     👥 Users
                 </a>
+
+                <!-- Manage Organization Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleOrgDropdown()"
+                            class="w-full text-left block px-4 py-2 rounded hover:bg-slate-800 flex items-center justify-between">
+                        <span class="flex items-center">
+                            <span class="mr-2">👥</span>
+                            Manage Organization
+                        </span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+
+                    <div id="orgDropdown"
+                         class="absolute left-0 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-lg w-64 py-2 hidden z-50">
+
+                        <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-slate-700">
+                            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs mr-3">
+                                A
+                            </div>
+                            <div>
+                                <div class="font-medium">ABC Corporation</div>
+                                <div class="text-xs text-slate-400">5 members</div>
+                            </div>
+                        </a>
+
+                        <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-slate-700">
+                            <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs mr-3">
+                                T
+                            </div>
+                            <div>
+                                <div class="font-medium">Tech Solutions</div>
+                                <div class="text-xs text-slate-400">12 members</div>
+                            </div>
+                        </a>
+
+                        <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-slate-700">
+                            <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-xs mr-3">
+                                D
+                            </div>
+                            <div>
+                                <div class="font-medium">Design Studio</div>
+                                <div class="text-xs text-slate-400">8 members</div>
+                            </div>
+                        </a>
+
+                        <div class="border-t border-slate-700 mt-2 pt-2">
+                            <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-slate-700">
+                                <i class="fas fa-plus-circle mr-3 text-green-400"></i>
+                                Add New Organization
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
                 <a href="#"
                    class="block px-4 py-2 rounded hover:bg-slate-800">
@@ -69,6 +125,20 @@
         </div>
 
     </div>
+
+    <script>
+        function toggleOrgDropdown() {
+            const dropdown = document.getElementById('orgDropdown');
+            dropdown.classList.toggle('hidden');
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.relative')) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+    </script>
 
 </body>
 </html>

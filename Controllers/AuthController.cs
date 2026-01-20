@@ -17,8 +17,14 @@ namespace MvcWebApiSwaggerApp.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View("~/Views/Admin/Register/Create.cshtml", new Register());
+            var model = new Register
+            {
+                Roles = _authService.GetActiveRoles()
+            };
+
+            return View("~/Views/Admin/Register/Create.cshtml", model);
         }
+
 
         [HttpPost]
         public IActionResult Register(Register model)

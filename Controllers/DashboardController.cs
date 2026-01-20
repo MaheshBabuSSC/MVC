@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.SqlServer.Server;
 using MvcWebApiSwaggerApp.Models;
 using MvcWebApiSwaggerApp.Services;
 using System.Linq;
@@ -8,10 +9,12 @@ namespace MvcWebApiSwaggerApp.Controllers
     public class DashboardController : Controller
     {
         private readonly FormService _formService;
+        private readonly AdminService _adminService;
 
-        public DashboardController(FormService formService)
+        public DashboardController(FormService formService,AdminService adminService )
         {
             _formService = formService;
+            _adminService = adminService;
         }
 
         // GET: /Dashboard/Index
@@ -50,8 +53,8 @@ namespace MvcWebApiSwaggerApp.Controllers
             ViewBag.SidebarForms = allForms;
 
             // Build dynamic table name
-            var tableName = "Form_" + form.FormTitle.Replace(" ", "");
-
+            //var tableName = "Form_" + form.FormTitle.Replace(" ", "");
+            var tableName = form.TableName;
             var fields = _formService.GetFields(tableName);
 
             var vm = new DynamicFormViewModel
@@ -93,6 +96,14 @@ namespace MvcWebApiSwaggerApp.Controllers
 
             TempData["Message"] = "Form submitted successfully";
             return RedirectToAction("Index");
+        }
+
+        [Route("UserList")]
+
+        public IActionResult UserList()
+        {
+            var users = _adminService.GetUsers();
+            return View("~/Views/Admin/UserList.cshtml", users);
         }
     }
 }

@@ -3,8 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MvcWebApiSwaggerApp.Models
 {
-    public class User
+    public class user
     {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+
+        public string IsActive { get; set; }
+
     }
 
     public class LoginViewModel

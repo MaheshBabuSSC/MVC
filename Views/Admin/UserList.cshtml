@@ -1,0 +1,227 @@
+﻿@model List<MvcWebApiSwaggerApp.Models.UsersList>
+
+@{
+    ViewData["Title"] = "User List";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    :root {
+        --primary: #2563eb;
+        --success: #16a34a;
+        --danger: #dc2626;
+        --border: #e5e7eb;
+        --text: #1f2937;
+        --muted: #6b7280;
+    }
+
+    * {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        background: #f9fafb;
+        color: var(--text);
+    }
+
+    .container {
+        padding: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .title {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s;
+    }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn i {
+            font-size: 14px;
+        }
+
+    .table-container {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        background: #f8fafc;
+        padding: 14px 16px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+        color: var(--text);
+    }
+
+    tr:hover {
+        background: #f8fafc;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background: #f0fdf4;
+        color: var(--success);
+        border: 1px solid #bbf7d0;
+    }
+
+    .status-inactive {
+        background: #fef2f2;
+        color: var(--danger);
+        border: 1px solid #fecaca;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: var(--muted);
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        color: #d1d5db;
+        margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .empty-state p {
+        margin: 0 0 20px 0;
+        font-size: 14px;
+    }
+
+    /* Mobile responsive */
+    @@media (max-width: 768px) {
+        .container {
+            padding: 16px;
+        }
+
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            min-width: 600px;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="header">
+        <h1 class="title">User List</h1>
+        <a asp-action="Create" class="btn">
+            <i class="fa-solid fa-plus"></i>
+            Add User
+        </a>
+    </div>
+
+    <div class="table-container">
+        @if (Model != null && Model.Any())
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.Email</td>
+                            <td>@user.PhoneNumber</td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <h3>No Users Found</h3>
+                <p>No users have been added yet.</p>
+                <a asp-action="Create" class="btn">
+                    <i class="fa-solid fa-plus"></i>
+                    Add First User
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Add Font Awesome if not already included -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>

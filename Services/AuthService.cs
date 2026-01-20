@@ -10,7 +10,7 @@ namespace MvcWebApiSwaggerApp.Services
         private readonly SmsService _smsService;
 
 
-        public AuthService(AppDbContext context, SmsService smsService  )
+        public AuthService(AppDbContext context, SmsService smsService)
         {
             _context = context;
             _smsService = smsService;
@@ -31,7 +31,9 @@ namespace MvcWebApiSwaggerApp.Services
                     request.Email,
                     hash,
                     salt,
-                    request.Role,
+                            //request.Role,
+                            request.RoleId,
+
                     createdBy,
                     request.MobileNumber
                 )
@@ -95,5 +97,16 @@ namespace MvcWebApiSwaggerApp.Services
 
             return isValid ? loginResult.UserId : 0;
         }
+
+        public List<RoleVM> GetActiveRoles()
+        {
+            return _context.Database
+                .SqlQueryRaw<RoleVM>(
+                    @"SELECT RoleId, RoleName 
+              FROM Roles 
+              WHERE IsActive = 1")
+                .ToList();
+        }
+
     }
 }

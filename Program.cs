@@ -30,6 +30,8 @@ builder.Services.AddScoped<FormService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<SmsService>();
 builder.Services.AddScoped<SubmissionService>();
+builder.Services.AddScoped<AdminService>(); // ✅ ADD THIS
+
 
 
 var app = builder.Build();
