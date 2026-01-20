@@ -35,21 +35,33 @@ namespace MvcWebApiSwaggerApp.Controllers
                 model.UserId = _authService.RegisterUser(model, "MVC");
                 model.IsOtpSent = 1;
 
+                // ✅ FIX
+                model.Roles = _authService.GetActiveRoles();
+
                 ViewBag.Message = "OTP sent to your mobile number";
                 return View("~/Views/Admin/Register/Create.cshtml", model);
             }
 
-            // STEP 2: Verify OTP ONLY
+            // STEP 2: Verify OTP
             var isValid = _authService.VerifyOtp(model.UserId, model.OtpCode);
 
             if (!isValid)
             {
+                // ✅ FIX
+                model.Roles = _authService.GetActiveRoles();
+
                 ViewBag.Error = "Invalid or expired OTP";
                 return View("~/Views/Admin/Register/Create.cshtml", model);
             }
 
+            // ✅ SUCCESS
+            var newModel = new Register
+            {
+                Roles = _authService.GetActiveRoles()
+            };
+
             ViewBag.Message = "User registered and verified successfully";
-            return View("~/Views/Admin/Register/Create.cshtml", new Register());
+            return View("~/Views/Admin/Register/Create.cshtml", newModel);
         }
 
 

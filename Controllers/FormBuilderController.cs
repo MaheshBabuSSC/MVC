@@ -21,25 +21,25 @@ public class FormBuilderController : Controller
     }
 
 
-    [HttpGet]
-    public IActionResult Create()
-    {
-        return View("~/Views/Admin/FormBuilder/Create.cshtml");
-    }
+    //[HttpGet]
+    //public IActionResult Create()
+    //{
+    //    return View("~/Views/Admin/FormBuilder/Create.cshtml");
+    //}
 
-    [HttpPost]
-    public IActionResult Create(CreateFormRequest request)
-    {
-        _service.CreateForm(
-            request.FormTitle,
-            request.FormDescription,
-            "MVC-User",
-            request.Fields
-        );
+    //[HttpPost]
+    //public IActionResult Create(CreateFormRequest request)
+    //{
+    //    _service.CreateForm(
+    //        request.FormTitle,
+    //        request.FormDescription,
+    //        "MVC-User",
+    //        request.Fields
+    //    );
 
-        ViewBag.Message = "Form created successfully!";
-        return View("~/Views/Admin/FormBuilder/Create.cshtml");
-    }
+    //    ViewBag.Message = "Form created successfully!";
+    //    return View("~/Views/Admin/FormBuilder/Create.cshtml");
+    //}
 
     [HttpPost]
     public IActionResult Update(int id, CreateFormRequest request)

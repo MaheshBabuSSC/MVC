@@ -16,6 +16,8 @@ namespace MvcWebApiSwaggerApp.Services
             _smsService = smsService;
         }
 
+
+
         public int RegisterUser(Register request, string createdBy)
         {
             PasswordHelper.CreatePasswordHash(
@@ -24,27 +26,33 @@ namespace MvcWebApiSwaggerApp.Services
                 out byte[] salt
             );
 
-            // 1️⃣ Create user and get UserId
+            // 1️⃣ Create user (NEW TABLE)
             var userId = _context.Database
-                .SqlQueryRaw<int>(
-                    "EXEC sp_CreateUser @p0, @p1, @p2, @p3, @p4, @p5",
-                    request.Email,
-                    hash,
-                    salt,
-                            //request.Role,
-                            request.RoleId,
+    .SqlQueryRaw<int>(
+        @"EXEC sp_CreateEmployeeUser 
+        @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7,@p8,@p9,@p10,@p11,@p12",
+        request.EmployeeId,
+        request.FullName,
+        request.UserName,
+        request.Email,
+        hash,
+        salt,                    // ✅ PASS SALT
+        request.MobileNumber,
+        request.DepartmentId,
+        request.Site,
+        request.Shift,
+        request.Location,
+        request.RoleId,
+        createdBy
+    )
+    .AsEnumerable()
+    .First();
 
-                    createdBy,
-                    request.MobileNumber
-                )
-                .AsEnumerable()
-                .First();
 
-            // 2️⃣ Generate OTP
+            // 2️⃣ OTP
             var otp = OtpHelper.GenerateOtp();
             var expiresAt = DateTime.Now.AddMinutes(5);
 
-            // 3️⃣ Save OTP
             _context.Database.ExecuteSqlRaw(
                 "EXEC sp_GenerateOtp @p0, @p1, @p2",
                 userId,
@@ -52,7 +60,6 @@ namespace MvcWebApiSwaggerApp.Services
                 expiresAt
             );
 
-            // 4️⃣ Send OTP to mobile
             _smsService.SendOtp(request.MobileNumber, otp);
 
             return userId;

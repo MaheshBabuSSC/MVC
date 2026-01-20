@@ -1,2 +1,0 @@
-wwwroot\js\Site.js
-C:\Mahesh\Dot Net\MvcWebApiSwaggerApp\wwwroot\js\Site.js

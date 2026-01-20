@@ -3,7 +3,7 @@ using MvcWebApiSwaggerApp.Models;
 
 namespace MvcWebApiSwaggerApp.Services
 {
-    public class User
+    public class user
     {
     }
 

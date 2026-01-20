@@ -1,0 +1,385 @@
+﻿@model List<MvcWebApiSwaggerApp.Models.UsersList>
+
+@{
+    ViewData["Title"] = "User List";
+    Layout = "~/Views/Shared/_KSEBLayout.cshtml";
+}
+
+<style>
+    :root {
+        --primary: #2563eb;
+        --success: #16a34a;
+        --danger: #dc2626;
+        --warning: #ca8a04;
+        --border: #e5e7eb;
+        --text: #1f2937;
+        --muted: #6b7280;
+    }
+
+    * {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        background: #f9fafb;
+        color: var(--text);
+    }
+
+    .container {
+        padding: 24px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .title {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s;
+    }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+    .table-container {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        background: #f8fafc;
+        padding: 14px 16px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+        color: var(--text);
+        vertical-align: middle;
+    }
+
+    tr:hover {
+        background: #f8fafc;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background: #f0fdf4;
+        color: var(--success);
+        border: 1px solid #bbf7d0;
+    }
+
+    .status-inactive {
+        background: #fef2f2;
+        color: var(--danger);
+        border: 1px solid #fecaca;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .badge-success {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge-info {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-secondary {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .action-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--text);
+        transition: all 0.2s;
+    }
+
+        .action-btn:hover {
+            background: #f8fafc;
+        }
+
+        .action-btn.edit {
+            color: var(--primary);
+            border-color: #93c5fd;
+        }
+
+        .action-btn.delete {
+            color: var(--danger);
+            border-color: #fca5a5;
+        }
+
+        .action-btn.view {
+            color: var(--success);
+            border-color: #86efac;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: var(--muted);
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        color: #d1d5db;
+        margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .empty-state p {
+        margin: 0 0 20px 0;
+        font-size: 14px;
+    }
+
+    /* Mobile responsive */
+    @@media (max-width: 768px) {
+        .container {
+            padding: 16px;
+        }
+
+        .header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            min-width: 1000px;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="header">
+        <h1 class="title">User List</h1>
+        <a asp-action="NewUser" class="btn">
+            <i class="fa-solid fa-plus"></i>
+            Add User
+        </a>
+    </div>
+
+    <div class="table-container">
+        @if (Model != null && Model.Any())
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Employee ID</th>
+                        <th>Full Name</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Department</th>
+                        <th>Site</th>
+                        <th>Shift</th>
+                        <th>Location</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.UserId</td>
+                            <td>@user.EmployeeId</td>
+                            <td>
+                                <div style="font-weight: 500;">@user.FullName</div>
+                                <div style="font-size: 12px; color: var(--muted);">@user.UserName</div>
+                            </td>
+                            <td>@user.UserName</td>
+                            <td>@user.Email</td>
+                            <td>@user.MobileNo</td>
+                            <td>
+                                @if (user.DepartmentId.HasValue)
+                                {
+                                    <span class="badge badge-secondary">Dept @user.DepartmentId</span>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--muted);">-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(user.Site))
+                                {
+                                    <span class="badge badge-info">@user.Site</span>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--muted);">-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(user.Shift))
+                                {
+                                    <span class="badge badge-warning">@user.Shift</span>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--muted);">-</span>
+                                }
+                            </td>
+                            <td>@user.Location</td>
+                            <td>
+                                @if (user.RoleId.HasValue)
+                                {
+                                    <span class="badge badge-success">Role @user.RoleId</span>
+                                }
+                                else
+                                {
+                                    <span style="color: var(--muted);">-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="status-badge status-active">
+                                        <i class="fa-solid fa-circle" style="font-size: 8px;"></i>
+                                        Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-inactive">
+                                        <i class="fa-solid fa-circle" style="font-size: 8px;"></i>
+                                        Inactive
+                                    </span>
+                                }
+                            </td>
+                            <td>@user.CreatedDate.ToString("dd-MMM-yyyy")</td>
+                            <td>
+                                <div class="actions">
+                                    <button class="action-btn view" title="View">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit" title="Edit">
+                                        <i class="fa-solid fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <h3>No Users Found</h3>
+                <p>No users have been added yet.</p>
+                <a asp-action="NewUser" class="btn">
+                    <i class="fa-solid fa-plus"></i>
+                    Add First User
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Add Font Awesome -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>

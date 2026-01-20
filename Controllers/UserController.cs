@@ -19,6 +19,11 @@ namespace MvcWebApiSwaggerApp.Controllers
             _formService = formService;
         }
 
+        public IActionResult NewUser()
+        {
+            return View();
+        }
+
         [HttpGet]
         public IActionResult Login()
         {
