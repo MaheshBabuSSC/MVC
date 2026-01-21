@@ -1,5 +1,6 @@
-﻿@{
-    ViewData["Title"] = "NewUser";
+﻿@model MvcWebApiSwaggerApp.Models.Register
+@{
+    ViewData["Title"] = "User Creation";
     Layout = "~/Views/Shared/_KSEBLayout.cshtml";
 }
 <style>
@@ -29,11 +30,11 @@
         padding: 0;
         height: 100vh;
         width: 100vw;
-        overflow: hidden;
+        /*overflow: hidden;*/
         color: var(--text);
     }
 
-    /* ✅ Same animation vibes */
+    /* ✅ Animation styles */
     @@keyframes slideDown {
         from {
             opacity: 0;
@@ -93,143 +94,15 @@
         flex-direction: column;
     }
 
-    /* ✅ Topbar */
-    .topbar {
-        height: 58px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 22px;
-        border-bottom: 1px solid var(--border);
-        flex-shrink: 0;
-        background: transparent;
-    }
-
-    .topbar-left {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-
-    #hamburger {
-        cursor: pointer;
-        padding: 8px;
-        font-size: 1.2rem;
-        color: var(--text);
-    }
-
-    .top-logo {
-        height: 32px;
-        width: auto;
-        object-fit: contain;
-    }
-
-    .nav-logo {
-        height: 28px;
-        width: auto;
-        object-fit: contain;
-    }
-
-    /* ✅ Main layout */
-    .app {
-        display: flex;
-        flex: 1;
-        overflow: hidden;
-    }
-
-    /* ✅ Sidebar */
-    .icon-rail {
-        width: 200px;
-        padding: 12px;
-        border-right: 1px solid var(--border);
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(5px);
-        transition: width 0.4s var(--ease);
-        overflow: hidden;
-    }
-
-        .icon-rail.collapsed {
-            width: 64px;
-        }
-
-    .rail-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 14px;
-        color: var(--muted);
-        cursor: pointer;
-        white-space: nowrap;
-        user-select: none;
-    }
-
-        .rail-item:hover,
-        .rail-item.active {
-            background: #fff;
-            color: #000;
-            font-weight: 600;
-        }
-
-    .icon-rail span {
-        opacity: 1;
-    }
-
-    .icon-rail.collapsed span {
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    /* Dropdown */
-    .has-dropdown {
-        flex-direction: column;
-    }
-
-    .rail-main {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        width: 100%;
-    }
-
-    .caret {
-        margin-left: auto;
-        font-size: 12px;
-    }
-
-    .rail-dropdown {
-        width: 100%;
-        margin-top: 6px;
-        padding-left: 28px;
-        display: none;
-    }
-
-    .has-dropdown.open .rail-dropdown {
-        display: block;
-    }
-
-    .dropdown-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 8px 10px;
-        font-size: 13px;
-        color: var(--muted);
-        cursor: pointer;
-        user-select: none;
-    }
-
-        .dropdown-item:hover {
-            background: #ffffffaa;
-            color: #000;
-        }
-
     /* ✅ Page area */
     .page-area {
         flex: 1;
         margin: 12px;
-        background: rgba(255, 255, 255, 0.55);
+        background: rgba(255, 255, 255, 0.85);
         padding: 30px;
         overflow: auto;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(214, 217, 222, 0.5);
     }
 
         .page-area::-webkit-scrollbar {
@@ -241,46 +114,232 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 18px;
+        margin-bottom: 28px;
         gap: 10px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(214, 217, 222, 0.5);
     }
 
     .page-title {
         margin: 0;
         font-size: 20px;
         font-weight: 700;
+        color: #111827;
     }
 
-    /* ✅ Buttons (NO Bootstrap) */
+    /* ✅ Form container */
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* ✅ Progress steps */
+    .progress-steps {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 35px;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        min-width: 120px;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50% !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 16px;
+        color: white;
+        background: #9ca3af;
+        transition: all 0.3s ease;
+    }
+
+    .step.active .step-number {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .step.completed .step-number {
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+    }
+
+    .step-label {
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .step.active .step-label {
+        color: #111827;
+        font-weight: 600;
+    }
+
+    .step-connector {
+        height: 2px;
+        width: 40px;
+        background: #e5e7eb;
+        margin-top: 20px;
+    }
+
+    /* ✅ Form grid */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 28px;
+        margin-bottom: 20px;
+    }
+
+    @@media (max-width: 900px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .field {
+        margin-bottom: 5px;
+    }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+    .input, .select {
+        width: 100%;
+        border: 1px solid var(--border);
+        padding: 11px 12px;
+        font-size: 14px;
+        outline: none;
+        background: #fff;
+    }
+
+        .input:focus, .select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+    .otp-input {
+        font-size: 24px;
+        letter-spacing: 8px;
+        text-align: center;
+        font-weight: 600;
+        padding: 15px;
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+    }
+
+    /* ✅ OTP container */
+    .otp-container {
+        max-width: 500px;
+        margin: 40px auto;
+        text-align: center;
+    }
+
+    .otp-icon {
+        font-size: 48px;
+        color: #2563eb;
+        margin-bottom: 20px;
+    }
+
+    .otp-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #111827;
+    }
+
+    .otp-subtitle {
+        color: #6b7280;
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    .user-info-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        margin-bottom: 25px;
+        color: #0369a1;
+        font-size: 14px;
+    }
+
+    /* ✅ Resend OTP */
+    .resend-otp {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        font-size: 13px;
+    }
+
+    .timer-text {
+        color: #dc2626;
+        font-weight: 600;
+    }
+
+    .resend-btn {
+        background: none;
+        border: none;
+        color: #2563eb;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 5px 10px;
+    }
+
+        .resend-btn:disabled {
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+    /* ✅ Buttons */
     .btn {
         display: inline-flex;
         align-items: center;
         gap: 8px;
         cursor: pointer;
         border: 1px solid transparent;
-        padding: 10px 14px;
+        padding: 12px 20px;
         font-size: 14px;
         font-weight: 600;
         background: #fff;
         color: var(--text);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         user-select: none;
+        transition: all 0.2s ease;
     }
 
         .btn:hover {
-            transform: translateY(-1px);
-            filter: brightness(1.02);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
         }
 
-    .btn-outline-dark {
-        border: 1px solid var(--border);
-        background: #fff;
-        color: #111827;
+    .btn-success {
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        border-color: transparent;
+        color: #fff;
     }
 
-        .btn-outline-dark:hover {
-            border-color: #111827;
-        }
+    .btn-primary {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        border-color: transparent;
+        color: #fff;
+    }
 
     .btn-outline-secondary {
         border: 1px solid var(--border);
@@ -290,56 +349,18 @@
 
         .btn-outline-secondary:hover {
             border-color: var(--muted);
+            color: var(--text);
         }
 
-    .btn-success {
-        background: var(--success);
-        border-color: var(--success);
-        color: #fff;
+    /* ✅ Form actions */
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        gap: 18px;
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 1px solid rgba(214, 217, 222, 0.5);
     }
-
-        .btn-success:hover {
-            filter: brightness(1.05);
-        }
-
-    /* ✅ Form grid (NO Bootstrap row/col) */
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px 28px;
-        margin-top: 10px;
-        max-width: 980px;
-    }
-
-    @@media (max-width: 900px) {
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .field label {
-        display: block;
-        font-size: 12px;
-        color: var(--muted);
-        margin-bottom: 6px;
-        font-weight: 600;
-    }
-
-    .input,
-    .select {
-        width: 100%;
-        border: 1px solid var(--border);
-        padding: 11px 12px;
-        font-size: 14px;
-        outline: none;
-        background: #fff;
-    }
-
-        .input:focus,
-        .select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-        }
 
     /* ✅ Switch Row */
     .switch-row {
@@ -359,7 +380,7 @@
             font-weight: 600;
         }
 
-    /* ✅ Custom Switch (NO Bootstrap) */
+    /* ✅ Custom Switch */
     .switch {
         position: relative;
         width: 44px;
@@ -385,7 +406,7 @@
             left: 3px;
             top: 3px;
             background: #fff;
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             transition: 0.25s ease;
         }
 
@@ -397,16 +418,7 @@
             transform: translateX(20px);
         }
 
-    /* ✅ Actions row */
-    .form-actions {
-        display: flex;
-        justify-content: center;
-        gap: 18px;
-        margin-top: 18px;
-        flex-wrap: wrap;
-    }
-
-    /* ✅ Toast (NO Bootstrap) */
+    /* ✅ Toast */
     .toast-container {
         position: fixed;
         top: 18px;
@@ -417,19 +429,18 @@
 
     .toast {
         pointer-events: auto;
-        min-width: 220px;
-        max-width: 320px;
-        background: rgba(15, 23, 42, 0.92);
+        min-width: 280px;
+        background: rgba(15, 23, 42, 0.95);
         color: #fff;
-        padding: 12px 14px;
+        padding: 14px 18px;
         border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-20px);
         transition: all 0.35s var(--ease);
     }
 
@@ -437,6 +448,25 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+    .toast-success {
+        background: rgba(21, 128, 61, 0.95);
+        border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .toast-error {
+        background: rgba(185, 28, 28, 0.95);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .toast-info {
+        background: rgba(30, 64, 175, 0.95);
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .toast-icon {
+        font-size: 18px;
+    }
 
     .toast-close {
         cursor: pointer;
@@ -448,121 +478,794 @@
             opacity: 1;
             transform: scale(1.05);
         }
+
+    /* ✅ Help Modal */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+    .modal-content {
+        background: white;
+        padding: 30px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+    .modal-body {
+        margin-bottom: 25px;
+    }
+
+    .help-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .help-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50% !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+
+        .help-icon.info {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .help-icon.warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .help-icon.success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+    .help-text h4 {
+        margin: 0 0 4px 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .help-text p {
+        margin: 0;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    /* ✅ Loading spinner */
+    .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* ✅ Hidden class */
+    .hidden {
+        display: none !important;
+    }
+
+    /* ✅ Message alerts */
+    .message-alert {
+        padding: 14px 18px;
+        margin-bottom: 25px;
+        border: 1px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+    }
+
+    .alert-success {
+        background: #dcfce7;
+        border-color: #86efac;
+        color: #166534;
+    }
+
+    .alert-error {
+        background: #fee2e2;
+        border-color: #fca5a5;
+        color: #991b1b;
+    }
 </style>
-<div class="page-header">
-    <h4 class="page-title" id="pageTitle">User Creation</h4>
 
 
+<div class="page-header anim-page">
+    <h4 class="page-title" id="pageTitle">
+        @if (Model.IsOtpSent == 0)
+        {
+            <span>User Creation</span>
+        }
+        else
+        {
+            <span>Verify OTP</span>
+        }
+    </h4>
 </div>
 
-<form id="createForm">
-
-    <div class="form-grid">
-
-        <div class="field">
-            <label>Employee ID</label>
-            <input type="text" class="input" id="empId" placeholder="Employee ID">
+<div class="form-container anim-page">
+    <!-- Progress Steps -->
+    <div class="progress-steps">
+        <div class="step @(Model.IsOtpSent == 0 ? "active" : "completed")">
+            <div class="step-number">1</div>
+            <div class="step-label">User Details</div>
         </div>
-
-        <div class="field">
-            <label>Full Name</label>
-            <input type="text" class="input" id="fullName" placeholder="Full Name">
+        <div class="step-connector"></div>
+        <div class="step @(Model.IsOtpSent == 1 ? "active" : "")">
+            <div class="step-number">2</div>
+            <div class="step-label">OTP Verification</div>
         </div>
+    </div>
 
-        <div class="field">
-            <label>Work Email</label>
-            <input type="email" class="input" id="email" placeholder="user@company.com">
+    <!-- Success/Error Messages -->
+    @if (ViewBag.Message != null)
+    {
+        <div class="message-alert alert-success">
+            <i class="fa-solid fa-check-circle"></i>
+            @ViewBag.Message
         </div>
+    }
 
-        <div class="field">
-            <label>Mobile Number</label>
-            <input type="tel" class="input" id="mobile" placeholder="Mobile Number">
+    @if (ViewBag.Error != null)
+    {
+        <div class="message-alert alert-error">
+            <i class="fa-solid fa-exclamation-circle"></i>
+            @ViewBag.Error
         </div>
+    }
 
-        <div class="field">
-            <label>Department</label>
-            <select class="select" id="dept">
-                <option>Select Department</option>
-                <option>Maintenance</option>
-                <option>Operations</option>
-                <option>Engineering</option>
-                <option>Stores</option>
-                <option>Safety</option>
-            </select>
+    <form id="registrationForm" method="post">
+        <input type="hidden" name="IsOtpSent" value="@Model.IsOtpSent" />
+        <input type="hidden" name="UserId" value="@Model.UserId" />
+
+        @if (Model.IsOtpSent == 0)
+        {
+            <!-- Step 1: User Registration -->
+            <div class="form-grid">
+                <div class="field">
+                    <label>Employee ID</label>
+                    <input type="text" class="input" name="EmployeeId" required
+                           value="@Model.EmployeeId" placeholder="Employee ID">
+                </div>
+
+                <div class="field">
+                    <label>Full Name</label>
+                    <input type="text" class="input" name="FullName" required
+                           value="@Model.FullName" placeholder="Full Name">
+                </div>
+
+                <div class="field">
+                    <label>Username</label>
+                    <input type="text" class="input" name="UserName" required
+                           value="@Model.UserName" placeholder="Username">
+                </div>
+
+                <div class="field">
+                    <label>Work Email</label>
+                    <input type="email" class="input" name="Email" required
+                           value="@Model.Email" placeholder="user@company.com">
+                </div>
+
+                <div class="field">
+                    <label>Password</label>
+                    <input type="password" class="input" name="Password" required
+                           placeholder="••••••••" minlength="6">
+                </div>
+
+                <div class="field">
+                    <label>Mobile Number</label>
+                    <input type="tel" class="input" name="MobileNumber" required
+                           value="@Model.MobileNumber" placeholder="Mobile Number">
+                </div>
+
+                <div class="field">
+                    <label>Department ID</label>
+                    <input type="number" class="input" name="DepartmentId" required
+                           value="@Model.DepartmentId" placeholder="Department ID">
+                </div>
+
+                <div class="field">
+                    <label>Site / Plant</label>
+                    <input type="text" class="input" name="Site"
+                           value="@Model.Site" placeholder="Site">
+                </div>
+
+                <div class="field">
+                    <label>Shift</label>
+                    <select class="select" name="Shift">
+                        <option value="">Select Shift</option>
+                        @{
+                            var shiftOptions = new Dictionary<string, string>
+                                        {
+                                        { "General", "General" },
+                                        { "Morning", "Morning" },
+                                        { "Night", "Night" },
+                                        { "Rotational", "Rotational" }
+                                        };
+
+                            foreach (var option in shiftOptions)
+                            {
+                                if (Model.Shift == option.Key)
+                                {
+                                    <option value="@option.Key" selected>@option.Value</option>
+                                }
+                                else
+                                {
+                                    <option value="@option.Key">@option.Value</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Location</label>
+                    <input type="text" class="input" name="Location"
+                           value="@Model.Location" placeholder="Location">
+                </div>
+
+                <div class="field">
+                    <label>EAM Role</label>
+                    <select class="select" name="RoleId" required>
+                        <option value="">Select Role</option>
+                        @if (Model.Roles != null)
+                        {
+                            foreach (var role in Model.Roles)
+                            {
+                                if (Model.RoleId == role.RoleId)
+                                {
+                                    <option value="@role.RoleId" selected>@role.RoleName</option>
+                                }
+                                else
+                                {
+                                    <option value="@role.RoleId">@role.RoleName</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="field">
+                    <label>User Active</label>
+                    <div class="switch-row">
+                        <span>User Active</span>
+                        <label class="switch">
+                            <input type="checkbox" name="IsActive" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="reset" class="btn btn-outline-secondary" id="resetBtn">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fa-solid fa-user-plus"></i> Create User & Send OTP
+                </button>
+            </div>
+        }
+        else
+        {
+            <!-- Step 2: OTP Verification -->
+            <div class="otp-container">
+                <div class="otp-icon">
+                    <i class="fa-solid fa-shield-check"></i>
+                </div>
+                <h2 class="otp-title">Verify OTP</h2>
+                <p class="otp-subtitle">Enter the 6-digit OTP sent to your email</p>
+
+                @if (Model.UserId > 0)
+                {
+                    <div class="user-info-badge">
+                        <i class="fa-solid fa-user"></i>
+                        <span>User ID: @Model.UserId</span>
+                    </div>
+                }
+
+                <div class="field">
+                    <label>OTP Code</label>
+                    <input type="text" class="input otp-input" name="OtpCode" required
+                           placeholder="000000" pattern="\d{6}" maxlength="6"
+                           inputmode="numeric" autocomplete="one-time-code" autofocus>
+                </div>
+
+                <div class="resend-otp">
+                    <div class="timer-text" id="timer">
+                        OTP expires in <span id="countdown">10:00</span>
+                    </div>
+                    <button type="button" class="resend-btn" id="resendOtpBtn">
+                        <i class="fa-solid fa-rotate-right"></i> Resend OTP
+                    </button>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline-secondary" id="backBtn">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                    <button type="submit" class="btn btn-success" id="verifyBtn">
+                        <i class="fa-solid fa-shield-check"></i> Verify OTP
+                    </button>
+                </div>
+
+                <div style="text-align: center; margin-top: 25px; color: #6b7280; font-size: 13px;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Didn't receive the OTP?
+                    <button type="button" id="helpBtn" style="background: none; border: none; color: #2563eb; font-weight: 600; cursor: pointer;">
+                        Get help
+                    </button>
+                </div>
+            </div>
+        }
+    </form>
+</div>
+
+<!-- Help Modal -->
+<div class="modal-overlay" id="helpModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <i class="fa-solid fa-circle-question" style="color: #2563eb;"></i>
+            <h3>OTP Help</h3>
         </div>
-
-        <div class="field">
-            <label>Site / Plant</label>
-            <select class="select" id="site">
-                <option>Select Site</option>
-                <option>Plant A</option>
-                <option>Plant B</option>
-                <option>Warehouse</option>
-            </select>
-        </div>
-
-        <div class="field">
-            <label>EAM Role</label>
-            <select class="select" id="role">
-                <option>Select Role</option>
-                <option>Maintenance Technician</option>
-                <option>Maintenance Supervisor</option>
-                <option>Asset Manager</option>
-                <option>Planner</option>
-                <option>EAM Administrator</option>
-            </select>
-        </div>
-
-        <div class="field">
-            <label>Asset Access Level</label>
-            <select class="select" id="access">
-                <option>Select Access</option>
-                <option>View Only</option>
-                <option>Work Orders</option>
-                <option>Assets & Work Orders</option>
-                <option>Full Asset Control</option>
-            </select>
-        </div>
-
-        <div class="field">
-            <label>Shift</label>
-            <select class="select" id="shift">
-                <option>General</option>
-                <option>Morning</option>
-                <option>Night</option>
-                <option>Rotational</option>
-            </select>
-        </div>
-
-        <div class="field">
-            <label>User Active</label>
-            <div class="switch-row">
-                <span>User Active</span>
-                <label class="switch">
-                    <input id="active" type="checkbox" checked>
-                    <span class="slider"></span>
-                </label>
+        <div class="modal-body">
+            <div class="help-item">
+                <div class="help-icon info">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div class="help-text">
+                    <h4>Check your email</h4>
+                    <p>Look for an email from us with subject "Your OTP Code"</p>
+                </div>
+            </div>
+            <div class="help-item">
+                <div class="help-icon warning">
+                    <i class="fa-solid fa-spam"></i>
+                </div>
+                <div class="help-text">
+                    <h4>Check spam folder</h4>
+                    <p>Sometimes OTP emails end up in spam/junk folder</p>
+                </div>
+            </div>
+            <div class="help-item">
+                <div class="help-icon success">
+                    <i class="fa-solid fa-rotate"></i>
+                </div>
+                <div class="help-text">
+                    <h4>Resend OTP</h4>
+                    <p>Click "Resend OTP" button to receive a new code</p>
+                </div>
             </div>
         </div>
-
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" id="closeHelpBtn">
+                Close
+            </button>
+            <button type="button" class="btn btn-primary" id="resendFromModalBtn">
+                <i class="fa-solid fa-paper-plane"></i> Resend OTP
+            </button>
+        </div>
     </div>
+</div>
 
-    <div class="form-actions">
-        <button type="reset" class="btn btn-outline-secondary" id="resetBtn">
-            Cancel
-        </button>
-        <button type="submit" class="btn btn-success" id="submitBtn">
-            Create User
-        </button>
-    </div>
-
-</form>
-<!-- ✅ Toast (NO Bootstrap) -->
+<!-- Toast Container -->
 <div class="toast-container">
-    <div id="successToast" class="toast">
-        <div id="toastText">Done</div>
+    <div id="toast" class="toast">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="toast-icon" id="toastIcon"></i>
+            <div id="toastText">Message</div>
+        </div>
         <i class="fa-solid fa-xmark toast-close" id="toastClose"></i>
     </div>
 </div>
 
+<script>
+    // ============================================
+    // DOM ELEMENT REFERENCES
+    // ============================================
+    const registrationForm = document.getElementById('registrationForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const resendOtpBtn = document.getElementById('resendOtpBtn');
+    const helpBtn = document.getElementById('helpBtn');
+    const helpModal = document.getElementById('helpModal');
+    const closeHelpBtn = document.getElementById('closeHelpBtn');
+    const resendFromModalBtn = document.getElementById('resendFromModalBtn');
+    const backBtn = document.getElementById('backBtn');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    const toastIcon = document.getElementById('toastIcon');
+    const toastClose = document.getElementById('toastClose');
+    const countdownEl = document.getElementById('countdown');
 
+    // ============================================
+    // FORM VALIDATION
+    // ============================================
+    function validateRegistrationForm() {
+        const email = document.querySelector('input[name="Email"]');
+        const password = document.querySelector('input[name="Password"]');
+        const mobile = document.querySelector('input[name="MobileNumber"]');
+        const role = document.querySelector('select[name="RoleId"]');
+
+        if (email && !email.value.trim()) {
+            showToast('Email is required!', 'error');
+            email.focus();
+            return false;
+        }
+
+        if (password && password.value.length < 6) {
+            showToast('Password must be at least 6 characters!', 'error');
+            password.focus();
+            return false;
+        }
+
+        if (mobile && !mobile.value.trim()) {
+            showToast('Mobile number is required!', 'error');
+            mobile.focus();
+            return false;
+        }
+
+        if (role && !role.value) {
+            showToast('Please select a role!', 'error');
+            role.focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateOtpForm() {
+        const otp = document.querySelector('input[name="OtpCode"]');
+
+        if (otp && (!otp.value.trim() || !/^\d{6}$/.test(otp.value))) {
+            showToast('Please enter a valid 6-digit OTP!', 'error');
+            otp.focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    // ============================================
+    // OTP INPUT HANDLING
+    // ============================================
+    const otpInput = document.querySelector('input[name="OtpCode"]');
+    if (otpInput) {
+        // Auto-format OTP
+        otpInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Auto-submit when 6 digits entered
+            if (this.value.length === 6) {
+                this.blur();
+                setTimeout(() => {
+                    if (validateOtpForm()) {
+                        verifyBtn.click();
+                    }
+                }, 300);
+            }
+        });
+
+        // Allow paste
+        otpInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+            this.value = pastedData.substring(0, 6);
+
+            if (pastedData.length >= 6) {
+                setTimeout(() => {
+                    if (validateOtpForm()) {
+                        verifyBtn.click();
+                    }
+                }, 300);
+            }
+        });
+    }
+
+    // ============================================
+    // OTP COUNTDOWN TIMER
+    // ============================================
+    let otpTimer = 600; // 10 minutes in seconds
+    let timerInterval;
+
+    function startOtpTimer() {
+        if (!countdownEl) return;
+
+        clearInterval(timerInterval);
+        otpTimer = 600;
+
+        timerInterval = setInterval(() => {
+            otpTimer--;
+            const minutes = Math.floor(otpTimer / 60);
+            const seconds = otpTimer % 60;
+
+            countdownEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (otpTimer <= 0) {
+                clearInterval(timerInterval);
+                countdownEl.textContent = '00:00';
+                if (resendOtpBtn) {
+                    resendOtpBtn.disabled = false;
+                }
+            }
+        }, 1000);
+    }
+
+    // ============================================
+    // RESEND OTP FUNCTIONALITY
+    // ============================================
+    let canResendOtp = false;
+    let resendCooldown = 60;
+
+    function startResendCooldown() {
+        canResendOtp = false;
+        resendCooldown = 60;
+
+        if (resendOtpBtn) {
+            resendOtpBtn.disabled = true;
+            updateResendButtonText();
+
+            const cooldownInterval = setInterval(() => {
+                resendCooldown--;
+                updateResendButtonText();
+
+                if (resendCooldown <= 0) {
+                    clearInterval(cooldownInterval);
+                    canResendOtp = true;
+                    resendOtpBtn.disabled = false;
+                    resendOtpBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Resend OTP';
+                }
+            }, 1000);
+        }
+    }
+
+    function updateResendButtonText() {
+        if (resendOtpBtn) {
+            resendOtpBtn.innerHTML = `<i class="fa-solid fa-clock"></i> Resend in ${resendCooldown}s`;
+        }
+    }
+
+    function resendOtp() {
+        if (!canResendOtp) return;
+
+        // Show loading
+        if (resendOtpBtn) {
+            const originalText = resendOtpBtn.innerHTML;
+            resendOtpBtn.innerHTML = '<span class="spinner"></span> Sending...';
+            resendOtpBtn.disabled = true;
+
+            // Simulate API call
+            setTimeout(() => {
+                // Reset cooldown
+                startResendCooldown();
+
+                // Restart OTP timer
+                startOtpTimer();
+
+                // Show success message
+                showToast('New OTP sent to your email!', 'success');
+
+                // Close help modal if open
+                helpModal.classList.remove('show');
+
+                // Restore button text
+                setTimeout(() => {
+                    resendOtpBtn.innerHTML = originalText;
+                }, 2000);
+            }, 1500);
+        }
+    }
+
+    // ============================================
+    // TOAST NOTIFICATIONS
+    // ============================================
+    function showToast(message, type = 'info') {
+        // Set toast type
+        toast.className = 'toast';
+        toast.classList.add(`toast-${type}`);
+
+        // Set icon based on type
+        let iconClass = 'fa-solid fa-info-circle';
+        if (type === 'success') iconClass = 'fa-solid fa-check-circle';
+        if (type === 'error') iconClass = 'fa-solid fa-exclamation-circle';
+
+        toastIcon.className = `toast-icon ${iconClass}`;
+        toastText.textContent = message;
+
+        // Show toast
+        toast.classList.add('show');
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 5000);
+    }
+
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    // Form submission
+    if (registrationForm) {
+        registrationForm.addEventListener('submit', function(e) {
+            const isOtpStep = @Model.IsOtpSent == 1;
+
+            if (!isOtpStep) {
+                // Registration step
+                if (!validateRegistrationForm()) {
+                    e.preventDefault();
+                } else {
+                    // Show loading state
+                    if (submitBtn) {
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<span class="spinner"></span> Processing...';
+                        submitBtn.disabled = true;
+
+                        // Reset button after 2 seconds (in case of error)
+                        setTimeout(() => {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        }, 2000);
+                    }
+                }
+            } else {
+                // OTP verification step
+                if (!validateOtpForm()) {
+                    e.preventDefault();
+                } else {
+                    // Show loading state
+                    if (verifyBtn) {
+                        const originalText = verifyBtn.innerHTML;
+                        verifyBtn.innerHTML = '<span class="spinner"></span> Verifying...';
+                        verifyBtn.disabled = true;
+
+                        // Reset button after 2 seconds (in case of error)
+                        setTimeout(() => {
+                            verifyBtn.innerHTML = originalText;
+                            verifyBtn.disabled = false;
+                        }, 2000);
+                    }
+                }
+            }
+        });
+    }
+
+    // Reset button
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to reset the form?')) {
+                registrationForm.reset();
+            }
+        });
+    }
+
+    // Back button (in OTP step)
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            window.history.back();
+        });
+    }
+
+    // Resend OTP button
+    if (resendOtpBtn) {
+        resendOtpBtn.addEventListener('click', resendOtp);
+
+        // Start cooldown on page load if on OTP page
+        const isOtpStep = @Model.IsOtpSent == 1;
+        if (isOtpStep) {
+            startResendCooldown();
+        }
+    }
+
+    // Help button
+    if (helpBtn) {
+        helpBtn.addEventListener('click', function() {
+            helpModal.classList.add('show');
+        });
+    }
+
+    // Close help modal
+    if (closeHelpBtn) {
+        closeHelpBtn.addEventListener('click', function() {
+            helpModal.classList.remove('show');
+        });
+    }
+
+    // Resend from modal
+    if (resendFromModalBtn) {
+        resendFromModalBtn.addEventListener('click', function() {
+            resendOtp();
+        });
+    }
+
+    // Close modal on outside click
+    helpModal.addEventListener('click', function(e) {
+        if (e.target === helpModal) {
+            helpModal.classList.remove('show');
+        }
+    });
+
+    // Toast close button
+    if (toastClose) {
+        toastClose.addEventListener('click', function() {
+            toast.classList.remove('show');
+        });
+    }
+
+    // Auto-hide messages after 5 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.message-alert');
+        alerts.forEach(alert => {
+            alert.style.transition = 'opacity 0.5s ease';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 5000);
+
+    // Initialize OTP timer if on OTP page
+    const isOtpStep = @Model.IsOtpSent == 1;
+    if (isOtpStep) {
+        startOtpTimer();
+
+        // Auto-focus OTP input
+        if (otpInput) {
+            setTimeout(() => otpInput.focus(), 300);
+        }
+    }
+
+    // Auto-start resend cooldown if on OTP page
+    if (isOtpStep && resendOtpBtn) {
+        startResendCooldown();
+    }
+</script>

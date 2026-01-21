@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MvcWebApiSwaggerApp.Models;
-using MvcWebApiSwaggerApp.Services; // Add this namespace
+using MvcWebApiSwaggerApp.Services;
 
 namespace MvcWebApiSwaggerApp.Controllers
 {
     public class KSEB : Controller
     {
         private readonly FormService _formService;
-        private readonly AdminService _adminService; // Add this
+        private readonly AdminService _adminService;
+        private readonly AuthService _authService;
 
-        // Update constructor to inject both services
-        public KSEB(FormService formService, AdminService adminService)
+        public KSEB(FormService formService, AdminService adminService, AuthService authService)
         {
             _formService = formService;
-            _adminService = adminService; // Add this
+            _adminService = adminService;
+            _authService = authService;
         }
 
         public IActionResult Index()
@@ -21,16 +22,62 @@ namespace MvcWebApiSwaggerApp.Controllers
             return View();
         }
 
+        [HttpGet]
         public IActionResult NewUser()
         {
-            return View();
+            // Create a model with roles from database
+            var model = new Register
+            {
+                IsOtpSent = 0, // Default to registration step
+                Roles = _authService.GetActiveRoles() // Get roles from database
+            };
+
+            return View(model); // Pass model to view
+        }
+
+        [HttpPost]
+        public IActionResult NewUser(Register model)
+        {
+            // STEP 1: Register + send OTP
+            if (model.IsOtpSent == 0)
+            {
+                // Register user and get UserId
+                model.UserId = _authService.RegisterUser(model, "MVC");
+                model.IsOtpSent = 1; // Move to OTP verification step
+
+                // Keep roles populated for the view
+                model.Roles = _authService.GetActiveRoles();
+
+                ViewBag.Message = "OTP sent to your email";
+                return View(model);
+            }
+
+            // STEP 2: Verify OTP
+            var isValid = _authService.VerifyOtp(model.UserId, model.OtpCode);
+
+            if (!isValid)
+            {
+                // Invalid OTP - stay on OTP page
+                model.Roles = _authService.GetActiveRoles();
+                ViewBag.Error = "Invalid or expired OTP";
+                return View(model);
+            }
+
+            // ✅ SUCCESS - User verified
+            // Reset form for new registration
+            var newModel = new Register
+            {
+                Roles = _authService.GetActiveRoles()
+            };
+
+            ViewBag.Message = "User registered and verified successfully";
+            return View(newModel);
         }
 
         public IActionResult UserList()
         {
-            // Call the AdminService to get users
-            var users = _adminService.GetUsers(); // This was missing!
-            return View(users); // Pass users to the view
+            var users = _adminService.GetUsers();
+            return View(users);
         }
 
         public IActionResult FormBuilder()
@@ -54,17 +101,16 @@ namespace MvcWebApiSwaggerApp.Controllers
             }
             catch (Exception ex)
             {
-                // Add error handling
                 ViewBag.Error = ex.Message;
             }
 
-            return View("~/Views/KSEB/FormBuilder.cshtml");
+            return View();
         }
 
         public IActionResult FormsList()
         {
             var forms = _formService.GetForms();
-            return View("~/Views/KSEB/FormsList.cshtml", forms);
+            return View(forms);
         }
     }
 }
