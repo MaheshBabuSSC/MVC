@@ -30,7 +30,7 @@ builder.Services.AddScoped<FormService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<SmsService>();
 builder.Services.AddScoped<SubmissionService>();
-builder.Services.AddScoped<AdminService>(); // ✅ ADD THIS
+builder.Services.AddScoped<AdminService>();
 
 
 
@@ -44,20 +44,16 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseRouting();
 
-app.UseAuthentication();   // ✅ REQUIRED
-app.UseAuthorization();    // ✅ REQUIRED
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseSession();
 
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=User}/{action=Login}/{id?}"
-);
+
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}"
-);
+    pattern: "{controller=KSEB}/{action=Index}/{id?}");
 
 
 

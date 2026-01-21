@@ -503,16 +503,16 @@
         // Show toast messages from TempData
         @if (TempData["SuccessMessage"] != null)
         {
-                <text>
-                    showNotification('@TempData["SuccessMessage"]', 'success');
-                </text>
+                    <text>
+                        showNotification('@TempData["SuccessMessage"]', 'success');
+                    </text>
         }
 
         @if (TempData["ErrorMessage"] != null)
         {
-                <text>
-                    showNotification('@TempData["ErrorMessage"]', 'error');
-                </text>
+                    <text>
+                        showNotification('@TempData["ErrorMessage"]', 'error');
+                    </text>
         }
     });
 

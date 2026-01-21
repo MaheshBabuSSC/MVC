@@ -131,13 +131,24 @@
                             <div class="dropdown-menu absolute end-0 m-0 mt-4 z-10 w-44 rounded-md overflow-hidden bg-white dark:bg-slate-900 shadow dark:shadow-gray-700 hidden" onclick="event.stopPropagation();">
                                 <ul class="py-2 text-start">
                                     <li>
-                                        <a href="#" class="block font-medium py-1 px-4 dark:text-white/70 hover:text-indigo-600 dark:hover:text-white">
-                                            <i class="uil uil-user me-2"></i>Profile
-                                        </a>
+                                        <a href="profile.html" class="block font-medium py-1 px-4 dark:text-white/70 hover:text-indigo-600 dark:hover:text-white"><i class="uil uil-user me-2"></i>Profile</a>
+                                    </li>
+                                    @* <li>
+                                        <a href="chat.html" class="block font-medium py-1 px-4 dark:text-white/70 hover:text-indigo-600 dark:hover:text-white"><i class="uil uil-comment me-2"></i>Chat</a>
+                                    </li>
+                                    <li>
+                                        <a href="email.html" class="block font-medium py-1 px-4 dark:text-white/70 hover:text-indigo-600 dark:hover:text-white"><i class="uil uil-envelope me-2"></i>Email</a>
+                                    </li>
+                                    <li>
+                                        <a href="profile-setting.html" class="block font-medium py-1 px-4 dark:text-white/70 hover:text-indigo-600 dark:hover:text-white"><i class="uil uil-setting me-2"></i>Settings</a>
                                     </li>
                                     <li class="border-t border-gray-100 dark:border-gray-800 my-2"></li>
                                     <li>
-                                        <a asp-controller="User" asp-action="Logout"
+                                        <a href="lock-screen.html" class="block font-medium py-1 px-4 dark:text-white/70 hover:text-indigo-600 dark:hover:text-white"><i class="uil uil-lock me-2"></i>Lockscreen</a>
+                                    </li> *@
+                                    <li>
+                                        <a asp-controller="KSEB"
+                                           asp-action="Logout"
                                            class="block font-medium py-1 px-4 dark:text-white/70 hover:text-indigo-600 dark:hover:text-white">
                                             <i class="uil uil-sign-out-alt me-2"></i>Logout
                                         </a>

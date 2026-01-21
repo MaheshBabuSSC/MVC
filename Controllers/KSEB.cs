@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using MvcWebApiSwaggerApp.Models;
 using MvcWebApiSwaggerApp.Services;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace MvcWebApiSwaggerApp.Controllers
 {
@@ -22,13 +26,60 @@ namespace MvcWebApiSwaggerApp.Controllers
             return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Index(LoginViewModel model)
+        {
+            var userId = _authService.ValidateLogin(model.Email, model.Password);
+
+            if (userId == 0)
+            {
+                ViewBag.Error = "Invalid email or password";
+                return View(model);
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(ClaimTypes.Email, model.Email)
+            };
+
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity)
+            );
+
+            // Store userId in session for easy access
+            HttpContext.Session.SetInt32("UserId", userId);
+
+            // Get forms for sidebar
+            var forms = _formService.GetForms();
+
+            // ✅ CRITICAL: Use TempData instead of ViewBag (survives redirect)
+            TempData["SidebarForms"] = JsonSerializer.Serialize(forms);
+            TempData.Keep("SidebarForms"); // Keep it for the next request
+
+            return RedirectToAction("Dashboard", "KSEB");
+        }
+
+
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
+
+
         [HttpGet]
         public IActionResult NewUser()
         {
             // Create a model with roles from database
             var model = new Register
             {
-                IsOtpSent = 0, // Default to registration step
                 Roles = _authService.GetActiveRoles() // Get roles from database
             };
 
@@ -38,42 +89,28 @@ namespace MvcWebApiSwaggerApp.Controllers
         [HttpPost]
         public IActionResult NewUser(Register model)
         {
-            // STEP 1: Register + send OTP
-            if (model.IsOtpSent == 0)
+            try
             {
+                // DIRECT REGISTRATION WITHOUT OTP
                 // Register user and get UserId
-                model.UserId = _authService.RegisterUser(model, "MVC");
-                model.IsOtpSent = 1; // Move to OTP verification step
+                model.UserId = _authService.RegisterUserWithoutOtp(model, "MVC");
 
                 // Keep roles populated for the view
                 model.Roles = _authService.GetActiveRoles();
 
-                ViewBag.Message = "OTP sent to your email";
+                ViewBag.Message = "User created successfully!";
                 return View(model);
             }
-
-            // STEP 2: Verify OTP
-            var isValid = _authService.VerifyOtp(model.UserId, model.OtpCode);
-
-            if (!isValid)
+            catch (Exception ex)
             {
-                // Invalid OTP - stay on OTP page
+                // If error occurs, keep the form data and show error
                 model.Roles = _authService.GetActiveRoles();
-                ViewBag.Error = "Invalid or expired OTP";
+                ViewBag.Error = ex.Message;
                 return View(model);
             }
-
-            // ✅ SUCCESS - User verified
-            // Reset form for new registration
-            var newModel = new Register
-            {
-                Roles = _authService.GetActiveRoles()
-            };
-
-            ViewBag.Message = "User registered and verified successfully";
-            return View(newModel);
         }
 
+        // Other actions remain the same...
         public IActionResult UserList()
         {
             var users = _adminService.GetUsers();
@@ -111,6 +148,14 @@ namespace MvcWebApiSwaggerApp.Controllers
         {
             var forms = _formService.GetForms();
             return View(forms);
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Redirect to default route → KSEB / Index
+            return RedirectToAction("Index", "KSEB");
         }
     }
 }

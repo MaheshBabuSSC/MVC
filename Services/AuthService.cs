@@ -29,7 +29,7 @@ namespace MvcWebApiSwaggerApp.Services
             // 1️⃣ Create user (NEW TABLE)
             var userId = _context.Database
     .SqlQueryRaw<int>(
-        @"EXEC sp_CreateEmployeeUser 
+        @"EXEC sp_AddUser 
         @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7,@p8,@p9,@p10,@p11,@p12",
         request.EmployeeId,
         request.FullName,
@@ -65,6 +65,52 @@ namespace MvcWebApiSwaggerApp.Services
             return userId;
         }
 
+
+        public int RegisterUserWithoutOtp(Register request, string createdBy)
+        {
+            PasswordHelper.CreatePasswordHash(
+                request.Password,
+                out byte[] hash,
+                out byte[] salt
+            );
+
+            // Create user directly without OTP
+            var userId = _context.Database
+        .SqlQueryRaw<int>(
+            @"EXEC sp_AddUsers 
+        @p0,@p1,@p2,@p3,@p4,@p5,@p6,@p7,@p8,@p9,@p10,@p11,@p12,@p13",
+            request.EmployeeId,   // @EmployeeId
+            request.FullName,     // @FullName
+            request.UserName,     // @UserName
+            request.Email,        // @Email
+            hash,                 // @PasswordHash
+            salt,                 // @PasswordSalt
+            request.MobileNumber, // @MobileNo
+            request.DepartmentId, // @DepartmentId
+            request.Site,         // @Site
+            request.Shift,        // @Shift
+            request.Location,     // @Location
+            request.RoleId,       // @RoleId
+            1,                    // @IsActive   <-- MISSING BEFORE
+            "MVC"                 // @CreatedBy
+        )
+        .AsEnumerable()
+        .First();
+
+
+            // SKIP OTP GENERATION AND SMS SENDING
+            // var otp = OtpHelper.GenerateOtp();
+            // var expiresAt = DateTime.Now.AddMinutes(5);
+            // _context.Database.ExecuteSqlRaw(
+            //     "EXEC sp_GenerateOtp @p0, @p1, @p2",
+            //     userId,
+            //     otp,
+            //     expiresAt
+            // );
+            // _smsService.SendOtp(request.MobileNumber, otp);
+
+            return userId;
+        }
         public bool VerifyOtp(int userId, string otp)
         {
             var result = _context.Database
@@ -86,7 +132,7 @@ namespace MvcWebApiSwaggerApp.Services
             // 1️⃣ Get hash + salt from DB via SP
             var loginResult = _context.Database
                 .SqlQueryRaw<LoginResult>(
-                    "EXEC sp_GetUserForLogin @p0",
+                    "EXEC sp_VerifyLogin @p0",
                     email
                 )
                 .AsEnumerable()
@@ -110,7 +156,7 @@ namespace MvcWebApiSwaggerApp.Services
             return _context.Database
                 .SqlQueryRaw<RoleVM>(
                     @"SELECT RoleId, RoleName 
-              FROM Roles 
+              FROM tbl_Roles 
               WHERE IsActive = 1")
                 .ToList();
         }

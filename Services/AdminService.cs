@@ -21,7 +21,7 @@ namespace MvcWebApiSwaggerApp.Services
         public List<UsersList> GetUsers()
         {
             return _context.Set<UsersList>()
-                .FromSqlRaw("EXEC sp_GetUsers")
+                .FromSqlRaw("EXEC sp_GetAllUsers")
                 .ToList();
         }
     };
